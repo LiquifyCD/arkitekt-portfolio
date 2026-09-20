@@ -6,6 +6,7 @@ import Uppslag from "../../komponenter/Uppslag.astro";
 import Projektkort from "../../komponenter/Projektkort.astro";
 import Avsnittsrubrik from "../../komponenter/Avsnittsrubrik.astro";
 import { KATEGORIER } from "../../consts";
+import { intern } from "../../lankar";
 
 export async function getStaticPaths() {
   const projekt = await getCollection("projekt");
@@ -49,7 +50,7 @@ const antal = d.uppslag.length;
 >
   <article class="projekt">
     <header class="sida projekt__topp">
-      <a class="tb tillbaka" href={`/projekt?kategori=${d.kategori}`}>
+      <a class="tb tillbaka" href={intern(`/projekt?kategori=${d.kategori}`)}>
         <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
           <path d="M19 12H6m0 0 5-5m-5 5 5 5" fill="none" stroke="currentColor" stroke-width="2.2"
           ></path>

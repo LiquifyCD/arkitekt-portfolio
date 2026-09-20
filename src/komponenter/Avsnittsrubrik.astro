@@ -1,4 +1,6 @@
 ---
+import { intern } from "../lankar";
+
 interface Props {
   etikett: string;
   rubrik: string;
@@ -14,7 +16,7 @@ const { etikett, rubrik, lank, lanktext } = Astro.props;
     <h2>{rubrik}</h2>
     {
       lank && (
-        <a class="avsnittsrubrik__lank" href={lank}>
+        <a class="avsnittsrubrik__lank" href={intern(lank)}>
           {lanktext ?? "Se alla"}
           <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
             <path

@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { bild } from "../bilder";
 import { KATEGORIER } from "../consts";
 import type { CollectionEntry } from "astro:content";
+import { intern } from "../lankar";
 
 interface Props {
   projekt: CollectionEntry<"projekt">;
@@ -20,7 +21,7 @@ const omslag = bild(d.omslag);
   data-ordning={d.ordning}
   data-titel={d.titel}
 >
-  <a class="kort__lank" href={`/projekt/${projekt.id}`}>
+  <a class="kort__lank" href={intern(`/projekt/${projekt.id}`)}>
     <span class="kort__bild">
       <Image
         src={omslag}

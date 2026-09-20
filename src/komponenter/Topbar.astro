@@ -1,19 +1,20 @@
 ---
 import { ARKITEKT, NAV } from "../consts";
+import { intern, utanBas } from "../lankar";
 
-const sokvag = Astro.url.pathname.replace(/\/$/, "") || "/";
+const sokvag = utanBas(Astro.url.pathname);
 const aktiv = (href: string) => sokvag === href || sokvag.startsWith(href + "/");
 ---
 
 <header class="topbar">
-  <a class="topbar__logga" href="/" aria-label={`${ARKITEKT.namn} — till startsidan`}>
+  <a class="topbar__logga" href={intern("/")} aria-label={`${ARKITEKT.namn} — till startsidan`}>
     {ARKITEKT.namn}
   </a>
   <nav class="topbar__flikar" aria-label="Huvudmeny">
     {
       NAV.map((post) => (
         <a
-          href={post.href}
+          href={intern(post.href)}
           class:list={["flik", { "flik--aktiv": aktiv(post.href) }]}
           aria-current={aktiv(post.href) ? "page" : undefined}
         >

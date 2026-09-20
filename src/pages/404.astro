@@ -1,5 +1,6 @@
 ---
 import Bas from "../layouts/Bas.astro";
+import { intern } from "../lankar";
 ---
 
 <Bas titel="Sidan finns inte">
@@ -10,8 +11,8 @@ import Bas from "../layouts/Bas.astro";
       Adressen leder ingenstans. Projekten ligger kvar där de brukar.
     </p>
     <p class="fel__lankar">
-      <a href="/projekt">Alla projekt</a>
-      <a href="/">Startsidan</a>
+      <a href={intern("/projekt")}>Alla projekt</a>
+      <a href={intern("/")}>Startsidan</a>
     </p>
   </div>
 </Bas>

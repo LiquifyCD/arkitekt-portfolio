@@ -1,0 +1,37 @@
+name: Publicera till GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Låt en pågående publicering bli klar i stället för att avbrytas.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  bygg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: withastro/action@v3
+        env:
+          # Sätter raden i sidfoten om att innehållet är påhittade platshållare.
+          # Ta bort när riktiga projekt och kontaktuppgifter ligger på plats.
+          PUBLIC_DEMO: "1"
+
+  publicera:
+    needs: bygg
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publicering.outputs.page_url }}
+    steps:
+      - id: publicering
+        uses: actions/deploy-pages@v4

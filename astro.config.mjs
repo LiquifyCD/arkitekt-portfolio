@@ -1,8 +1,9 @@
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  // Byt till den riktiga domänen innan publicering — styr sitemap och og:url.
-  site: "https://arkitekt.example.se",
+  // GitHub Pages serverar projektsajten från /<repo>/. Byt båda vid egen domän.
+  site: "https://liquifycd.github.io",
+  base: "/arkitekt-portfolio/",
   trailingSlash: "ignore",
   build: { inlineStylesheets: "auto", format: "directory" },
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },

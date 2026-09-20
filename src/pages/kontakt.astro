@@ -1,6 +1,7 @@
 ---
 import Bas from "../layouts/Bas.astro";
 import { ARKITEKT } from "../consts";
+import { intern } from "../lankar";
 
 const rader = [
   { etikett: "E-post", text: ARKITEKT.epost, href: `mailto:${ARKITEKT.epost}` },
@@ -11,7 +12,7 @@ const rader = [
   },
   { etikett: "Instagram", text: "@example", href: ARKITEKT.instagram },
   { etikett: "LinkedIn", text: ARKITEKT.namn, href: ARKITEKT.linkedin },
-  { etikett: "CV", text: "Ladda ner som PDF", href: ARKITEKT.cv },
+  { etikett: "CV", text: "Ladda ner som PDF", href: intern(ARKITEKT.cv) },
 ];
 ---
 
