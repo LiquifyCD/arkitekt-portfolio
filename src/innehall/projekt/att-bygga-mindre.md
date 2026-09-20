@@ -43,6 +43,5 @@ uppslag:
       den.
 ---
 
-Publicerad i Arkitektur nr 4, 2025. Texten bygger på erfarenheterna från
-Kajhuset och Strandängen, där samma diskussion fördes två gånger med olika
-utfall.
+Texten bygger på Kajhuset och Strandängen, där samma diskussion fördes två
+gånger med olika utfall.

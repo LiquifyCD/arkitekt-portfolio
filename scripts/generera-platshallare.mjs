@@ -256,14 +256,31 @@ function modell(b, h, r) {
   const golv = h * 0.74;
   s += `<rect y="${golv}" width="${b}" height="${h - golv}" fill="#C6C9C2"/>`;
 
+  // Bitarna staplas i rad och hela gruppen centreras sedan i bildrutan. Slumpas
+  // x-läget per bit i stället hamnar massan var som helst utom i mitten.
   const n = heltal(r, 3, 5);
   const bitar = [];
+  let x = 0;
   for (let i = 0; i < n; i++) {
     const bw = mellan(r, b * 0.1, b * 0.26);
     const bh = mellan(r, h * 0.16, h * 0.5);
-    bitar.push({ x: mellan(r, b * 0.08, b * 0.86 - bw), bw, bh });
+    bitar.push({ x, bw, bh });
+    x += bw + mellan(r, -bw * 0.3, b * 0.05);
   }
-  bitar.sort((a, c) => a.x - c.x);
+
+  const bredd = Math.max(...bitar.map((k) => k.x + k.bw));
+  // Skuggan faller åt höger och räknas som en del av massan, annars ser gruppen
+  // vänstertung ut fast lådorna står mitt i.
+  const skugga = Math.max(...bitar.map((k) => k.bh)) * 0.5;
+  const plats = b * 0.84;
+  const skala = bredd + skugga > plats ? plats / (bredd + skugga) : 1;
+  for (const k of bitar) {
+    k.x *= skala;
+    k.bw *= skala;
+    k.bh *= skala;
+  }
+  const forskjut = (b - (bredd + skugga) * skala) / 2;
+  for (const k of bitar) k.x += forskjut;
   for (const k of bitar) {
     const y = golv - k.bh;
     // slagskugga

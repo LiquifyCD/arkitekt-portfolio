@@ -17,8 +17,6 @@ Allt som är personligt ligger i **`src/consts.ts`** — namn, titel, ort, ingre
 e-post, telefon, sociala länkar, navigering och kategorier. Det är den enda fil
 du behöver röra för att göra sajten till någon annans.
 
-Namnet `Ingrid Almqvist` är en platshållare.
-
 Byt även `site` i `astro.config.mjs` till den riktiga domänen innan publicering.
 
 ## Lägga till ett projekt

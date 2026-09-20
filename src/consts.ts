@@ -2,13 +2,12 @@
 // byta namn, kontaktuppgifter, navigering eller kategorier.
 
 export const ARKITEKT = {
-  // PLATSHÅLLARE — byt till arkitektens riktiga namn.
-  namn: "Ingrid Almqvist",
-  titel: "Arkitekt SAR/MSA",
+  namn: "Wilma Vallström Bergstrand",
+  titel: "Masterstudent i arkitektur",
   ort: "Göteborg",
-  // En rad som sammanfattar praktiken. Syns under namnet på startsidan.
+  // En rad som sammanfattar arbetet. Syns under namnet på startsidan.
   ingress:
-    "Ritar hus som tar hand om dagsljuset de får. Bostad, publika byggnader och stadsrum i västsvensk skala.",
+    "Arkitekturstudent på Chalmers, masterprogrammet sedan hösten 2026. Arbetar med dagsljus, bostad och stadsrum i västsvensk skala.",
   epost: "hej@example.se",
   telefon: "+46 70 000 00 00",
   instagram: "https://instagram.com/example",
