@@ -1,0 +1,116 @@
+---
+import { ARKITEKT, NAV } from "../consts";
+
+const sokvag = Astro.url.pathname.replace(/\/$/, "") || "/";
+const aktiv = (href: string) => sokvag === href || sokvag.startsWith(href + "/");
+---
+
+<header class="topbar">
+  <a class="topbar__logga" href="/" aria-label={`${ARKITEKT.namn} — till startsidan`}>
+    {ARKITEKT.namn}
+  </a>
+  <nav class="topbar__flikar" aria-label="Huvudmeny">
+    {
+      NAV.map((post) => (
+        <a
+          href={post.href}
+          class:list={["flik", { "flik--aktiv": aktiv(post.href) }]}
+          aria-current={aktiv(post.href) ? "page" : undefined}
+        >
+          {post.text}
+        </a>
+      ))
+    }
+  </nav>
+</header>
+
+<style>
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--rum-5);
+    height: var(--topbar-h);
+    padding-inline: var(--marg);
+    background: var(--papper);
+    border-bottom: 1px solid var(--linje);
+  }
+
+  .topbar__logga {
+    font-family: var(--typ-display);
+    font-weight: 600;
+    font-size: var(--t-l);
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .topbar__flikar {
+    display: flex;
+    gap: var(--rum-1);
+  }
+
+  .flik {
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.55em 0.9em;
+    color: var(--grafit);
+    white-space: nowrap;
+    transition:
+      background-color 130ms ease,
+      color 130ms ease;
+  }
+
+  .flik:hover {
+    background: color-mix(in srgb, var(--grafit) 9%, transparent);
+  }
+
+  /* Aktiv flik fylls solid — poché, som ett kapat element på en ritning. */
+  .flik--aktiv {
+    background: var(--poche);
+    color: var(--norrljus);
+  }
+
+  @media (max-width: 860px) {
+    .topbar {
+      /* Relativ, inte statisk: z-index måste gälla så att raden täcker
+         snittlinjens skena vid sidans topp. */
+      position: relative;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      gap: 0;
+      height: auto;
+      padding-block: var(--rum-3) 0;
+    }
+
+    .topbar__logga {
+      font-size: var(--t-m);
+    }
+
+    .topbar__flikar {
+      margin-top: var(--rum-3);
+      margin-inline: calc(var(--marg) * -1);
+      padding-inline: var(--marg);
+      overflow-x: auto;
+      scrollbar-width: none;
+      /* Tonar ut högerkanten så att det syns att raden fortsätter. */
+      mask-image: linear-gradient(
+        to right,
+        #000 0,
+        #000 calc(100% - 2.5rem),
+        transparent 100%
+      );
+    }
+    .topbar__flikar::-webkit-scrollbar {
+      display: none;
+    }
+  }
+</style>

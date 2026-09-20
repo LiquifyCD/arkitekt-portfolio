@@ -1,0 +1,116 @@
+---
+import Bas from "../layouts/Bas.astro";
+import { ARKITEKT } from "../consts";
+
+const rader = [
+  { etikett: "E-post", text: ARKITEKT.epost, href: `mailto:${ARKITEKT.epost}` },
+  {
+    etikett: "Telefon",
+    text: ARKITEKT.telefon,
+    href: `tel:${ARKITEKT.telefon.replace(/\s/g, "")}`,
+  },
+  { etikett: "Instagram", text: "@example", href: ARKITEKT.instagram },
+  { etikett: "LinkedIn", text: ARKITEKT.namn, href: ARKITEKT.linkedin },
+  { etikett: "CV", text: "Ladda ner som PDF", href: ARKITEKT.cv },
+];
+---
+
+<Bas titel="Kontakt" beskrivning={`Kontakta ${ARKITEKT.namn}, ${ARKITEKT.titel} i ${ARKITEKT.ort}.`}>
+  <div class="sida topp" data-snitt="Kontakt">
+    <p class="tb">Kontakt</p>
+    <h1>Hör av dig</h1>
+    <p class="topp__ingress text-matt">
+      Skriv gärna även om projektet är vagt. Det är lättare att säga något
+      vettigt om en tomt och en tanke än om ett färdigt program.
+    </p>
+  </div>
+
+  <div class="sida">
+    <ul class="rader">
+      {
+        rader.map((rad) => (
+          <li class="rad">
+            <span class="tb rad__etikett">{rad.etikett}</span>
+            <a class="rad__lank" href={rad.href}>
+              {rad.text}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="besked">
+      <h2>Vad jag tar mig an</h2>
+      <p class="text-matt">
+        Bostadshus, mindre publika byggnader, inredning och strukturplaner i
+        Västsverige. Jag arbetar ensam och tar ett fåtal uppdrag åt gången, så
+        svaret blir ibland nej — men det kommer snabbt.
+      </p>
+    </div>
+  </div>
+</Bas>
+
+<style>
+  .topp {
+    padding-top: var(--rum-7);
+    margin-bottom: var(--rum-7);
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    margin: var(--rum-4) 0 var(--rum-4);
+  }
+
+  .topp__ingress {
+    font-size: var(--t-l);
+    line-height: 1.45;
+    font-variation-settings: "opsz" 24;
+  }
+
+  .rader {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--linje-stark);
+  }
+
+  .rad {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr);
+    gap: var(--rum-4);
+    align-items: baseline;
+    padding-block: var(--rum-4);
+    border-bottom: 1px solid var(--linje);
+  }
+
+  .rad__etikett {
+    padding-top: 0.3em;
+  }
+
+  .rad__lank {
+    font-family: var(--typ-display);
+    font-size: var(--t-l);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    text-decoration-color: var(--linje-stark);
+  }
+
+  .besked {
+    margin-top: var(--rum-8);
+  }
+
+  .besked h2 {
+    font-size: var(--t-xl);
+    font-weight: 500;
+    margin-bottom: var(--rum-4);
+  }
+
+  @media (max-width: 620px) {
+    .rad {
+      grid-template-columns: 1fr;
+      gap: var(--rum-2);
+    }
+  }
+</style>

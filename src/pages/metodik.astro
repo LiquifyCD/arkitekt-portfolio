@@ -1,0 +1,155 @@
+---
+import Bas from "../layouts/Bas.astro";
+
+// Ordningen bär informationen här — det här är faktiskt ett förlopp, och
+// därför är stegen numrerade.
+const steg = [
+  {
+    nr: "01",
+    rubrik: "Platsen först",
+    text: "En dag på tomten, mätning och en solstudie innan en enda linje ritas. Marken, höjderna och grannarna har redan bestämt det mesta; arbetet är att ta reda på vad.",
+    resultat: "Platsanalys, solstudie, höjdsatt situationsplan",
+  },
+  {
+    nr: "02",
+    rubrik: "Snitt före plan",
+    text: "Huset förstås genom att kapas. Sektionen avgör dagsljus, rumshöjder och hur trappan går. Planen är en följd av snittet, inte tvärtom — det är den ordningen som gör att ljuset hamnar rätt.",
+    resultat: "Sektioner 1:100, dagsljusberäkning",
+  },
+  {
+    nr: "03",
+    rubrik: "Modell i handen",
+    text: "Varje skede får en fysisk modell, också när budgeten säger nej. Ett dåligt förhållande mellan två volymer går att bortförklara i en renderad bild och inte i papp på ett bord.",
+    resultat: "Arbetsmodell 1:200 till 1:50",
+  },
+  {
+    nr: "04",
+    rubrik: "Mindre, om det går",
+    text: "Innan volymen låses görs ett försök att krympa den. Nästan varje projekt vinner på det, och argumentet måste vara mätbart för att överleva ett byggmöte — soltimmar på gården, inte tycke.",
+    resultat: "Volymalternativ med sol- och dagsljustal",
+  },
+  {
+    nr: "05",
+    rubrik: "Handling med få ark",
+    text: "Bygghandlingen hålls så kort den kan bli. Det som ska bestämmas på plats ritas inte i förväg; det som måste sitta exakt ritas i skala 1:1.",
+    resultat: "Bygghandling, detaljer 1:1",
+  },
+];
+---
+
+<Bas
+  titel="Metodik"
+  beskrivning="Hur ett projekt går till: platsen först, snitt före plan, modell i varje skede."
+>
+  <div class="sida topp" data-snitt="Metodik">
+    <p class="tb">Metodik</p>
+    <h1>Tankeprocessen</h1>
+    <p class="topp__ingress text-matt">
+      Fem steg som går i den här ordningen. Ordningen är själva poängen — byts
+      två av dem hamnar dagsljuset sist, och då är det för sent.
+    </p>
+  </div>
+
+  <div class="sida">
+    <ol class="flode">
+      {
+        steg.map((s) => (
+          <li class="steg">
+            <div class="steg__nr tb">{s.nr}</div>
+            <div class="steg__kropp">
+              <h2>{s.rubrik}</h2>
+              <p class="steg__text">{s.text}</p>
+              <p class="tb steg__resultat">Ger: {s.resultat}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</Bas>
+
+<style>
+  .topp {
+    padding-top: var(--rum-7);
+    margin-bottom: var(--rum-7);
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    margin: var(--rum-4) 0 var(--rum-4);
+  }
+
+  .topp__ingress {
+    font-size: var(--t-l);
+    line-height: 1.45;
+    font-variation-settings: "opsz" 24;
+  }
+
+  .flode {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--linje-stark);
+  }
+
+  .steg {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: var(--rum-5);
+    padding-block: var(--rum-5);
+    border-bottom: 1px solid var(--linje);
+    position: relative;
+  }
+
+  /* Pilen som för blicken vidare till nästa steg. */
+  .steg:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: calc(2.5rem - 4.5px);
+    bottom: -5px;
+    width: 0;
+    height: 0;
+    border-left: 4.5px solid transparent;
+    border-right: 4.5px solid transparent;
+    border-top: 8px solid var(--blakopia);
+  }
+
+  .steg__nr {
+    color: var(--blakopia);
+    font-size: var(--t-xs);
+    letter-spacing: 0.16em;
+    padding-top: 0.35em;
+  }
+
+  .steg__kropp {
+    max-width: 46ch;
+  }
+
+  h2 {
+    font-size: var(--t-xl);
+    font-weight: 500;
+    margin-bottom: var(--rum-3);
+  }
+
+  .steg__text {
+    margin-bottom: var(--rum-4);
+  }
+
+  .steg__resultat {
+    margin: 0;
+    text-transform: none;
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 700px) {
+    .steg {
+      grid-template-columns: 1fr;
+      gap: var(--rum-3);
+    }
+    .steg:not(:last-child)::after {
+      left: 0;
+    }
+  }
+</style>

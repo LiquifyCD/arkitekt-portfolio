@@ -1,0 +1,93 @@
+---
+import { Image } from "astro:assets";
+import { bild } from "../bilder";
+import { KATEGORIER } from "../consts";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  projekt: CollectionEntry<"projekt">;
+  laddning?: "eager" | "lazy";
+}
+const { projekt, laddning = "lazy" } = Astro.props;
+const d = projekt.data;
+const omslag = bild(d.omslag);
+---
+
+<article
+  class="kort"
+  data-kategori={d.kategori}
+  data-ar={d.ar}
+  data-ordning={d.ordning}
+  data-titel={d.titel}
+>
+  <a class="kort__lank" href={`/projekt/${projekt.id}`}>
+    <span class="kort__bild">
+      <Image
+        src={omslag}
+        alt={`${d.titel}, ${KATEGORIER[d.kategori].toLowerCase()} i ${d.plats}`}
+        widths={[420, 760, 1200]}
+        sizes="(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 30vw"
+        loading={laddning}
+      />
+    </span>
+    <span class="kort__rad">
+      <span class="tb kort__kategori">{KATEGORIER[d.kategori]}</span>
+      <span class="tb kort__ar">{d.ar}</span>
+    </span>
+    <h3 class="kort__titel">{d.titel}</h3>
+    <p class="kort__plats">{d.plats} — {d.status}</p>
+  </a>
+</article>
+
+<style>
+  .kort {
+    break-inside: avoid;
+  }
+
+  .kort__lank {
+    display: block;
+    text-decoration: none;
+  }
+
+  .kort__bild {
+    display: block;
+    overflow: hidden;
+    background: var(--papper-djup);
+  }
+
+  .kort__bild :global(img) {
+    width: 100%;
+    height: auto;
+    transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .kort__lank:hover .kort__bild :global(img) {
+    transform: scale(1.022);
+  }
+
+  .kort__rad {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--rum-3);
+    padding-top: var(--rum-3);
+    margin-top: var(--rum-3);
+    border-top: 1px solid var(--linje);
+  }
+
+  .kort__titel {
+    font-size: var(--t-l);
+    margin-top: var(--rum-2);
+  }
+
+  .kort__lank:hover .kort__titel {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .kort__plats {
+    font-size: var(--t-s);
+    color: var(--krita);
+    margin: 0.2em 0 0;
+  }
+</style>

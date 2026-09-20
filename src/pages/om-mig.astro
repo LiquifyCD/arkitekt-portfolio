@@ -1,0 +1,126 @@
+---
+import { Image } from "astro:assets";
+import Bas from "../layouts/Bas.astro";
+import Namnruta from "../komponenter/Namnruta.astro";
+import { bild } from "../bilder";
+import { ARKITEKT } from "../consts";
+
+const fakta = [
+  { etikett: "Verksam sedan", varde: "2014" },
+  { etikett: "Utbildning", varde: "Chalmers, arkitektur" },
+  { etikett: "Titel", varde: ARKITEKT.titel },
+  { etikett: "Bas", varde: ARKITEKT.ort },
+];
+---
+
+<Bas titel="Om mig" beskrivning="Om arkitekten och arkitekturen bakom projekten.">
+  <div class="sida topp" data-snitt="Om mig">
+    <p class="tb">Om mig</p>
+    <h1>Om mig och min arkitektur</h1>
+  </div>
+
+  <div class="sida ihop">
+    <div class="ihop__text">
+      <p class="ingress">
+        Jag ritar hus som tar hand om dagsljuset de får. Det låter som en
+        självklarhet och är det inte — i de flesta projekt är volymen bestämd
+        innan någon räknat på sol, och då blir ljuset något man kompenserar för i
+        efterhand.
+      </p>
+
+      <p>
+        Jag tog examen från Chalmers 2014 och arbetade nio år på kontor i
+        Göteborg och Oslo innan jag började ta egna uppdrag. Det mesta jag gör nu
+        är bostäder och mindre publika byggnader i Västsverige, ofta på platser
+        som har något besvärligt med sig: en bergklack, en kaj som svämmar över,
+        en hall som är byggnadsminne.
+      </p>
+
+      <p>
+        Arbetssättet är enkelt att sammanfatta och svårare att hålla fast vid.
+        Jag börjar med platsen och sektionen, inte med planen. Jag bygger modell
+        i varje skede, också när det inte ryms i budgeten. Och jag försöker göra
+        husen mindre än programmet säger, eftersom de nästan alltid blir bättre
+        av det — vilket jag har skrivit en hel essä om, av irritation.
+      </p>
+
+      <p>
+        Jag arbetar ensam och tar in konsulter per projekt. Det betyder att jag
+        själv gör både skiss och handling, och att jag tackar nej till mer än jag
+        tackar ja till.
+      </p>
+    </div>
+
+    <div class="ihop__bild">
+      <Image
+        src={bild("portratt.jpg")}
+        alt={`Porträtt av ${ARKITEKT.namn}`}
+        widths={[360, 640, 900]}
+        sizes="(max-width: 860px) 92vw, 30vw"
+        loading="eager"
+      />
+      <p class="tb">{ARKITEKT.namn}, {ARKITEKT.ort}</p>
+    </div>
+  </div>
+
+  <div class="sida fakta">
+    <Namnruta poster={fakta} />
+  </div>
+</Bas>
+
+<style>
+  .topp {
+    padding-top: var(--rum-7);
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    margin: var(--rum-4) 0 var(--rum-7);
+    max-width: 18ch;
+  }
+
+  .ihop {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--rum-7);
+    align-items: start;
+  }
+
+  .ihop__text {
+    max-width: 40ch;
+  }
+
+  .ingress {
+    font-size: var(--t-l);
+    line-height: 1.45;
+    font-variation-settings: "opsz" 26;
+    margin-bottom: var(--rum-5);
+  }
+
+  .ihop__bild :global(img) {
+    width: 100%;
+    height: auto;
+    background: var(--papper-djup);
+  }
+
+  .ihop__bild p {
+    margin: var(--rum-3) 0 0;
+  }
+
+  .fakta {
+    margin-top: var(--rum-8);
+  }
+
+  @media (max-width: 860px) {
+    .ihop {
+      grid-template-columns: 1fr;
+      gap: var(--rum-6);
+    }
+    .ihop__bild {
+      order: -1;
+      max-width: 22rem;
+    }
+  }
+</style>

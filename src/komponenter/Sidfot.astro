@@ -1,0 +1,98 @@
+---
+import { ARKITEKT } from "../consts";
+const ar = new Date().getFullYear();
+
+// Byggs sajten med PUBLIC_DEMO=1 sätts en rad i kolofonen om att innehållet är
+// påhittat. Används när prototypen delas innan riktigt innehåll finns på plats.
+const demo = import.meta.env.PUBLIC_DEMO === "1";
+---
+
+<footer class="sidfot" data-snitt="Kontakt">
+  <div class="sida sidfot__inre">
+    <div class="sidfot__prat">
+      <p class="sidfot__rubrik">Har du ett hus som behöver ritas?</p>
+      <a class="sidfot__epost" href={`mailto:${ARKITEKT.epost}`}>{ARKITEKT.epost}</a>
+    </div>
+
+    <ul class="sidfot__lankar">
+      <li><a href={`tel:${ARKITEKT.telefon.replace(/\s/g, "")}`}>{ARKITEKT.telefon}</a></li>
+      <li><a href={ARKITEKT.instagram} rel="me noopener">Instagram</a></li>
+      <li><a href={ARKITEKT.linkedin} rel="me noopener">LinkedIn</a></li>
+      <li><a href={ARKITEKT.cv}>Ladda ner CV</a></li>
+    </ul>
+
+    <p class="tb sidfot__kolofon">
+      {ar} {ARKITEKT.namn} — {ARKITEKT.ort}
+      {
+        demo && (
+          <span class="sidfot__demo">
+            Designprototyp — namn, projekt, texter och kontaktuppgifter är
+            påhittade platshållare.
+          </span>
+        )
+      }
+    </p>
+  </div>
+</footer>
+
+<style>
+  .sidfot {
+    margin-top: var(--rum-8);
+    border-top: 1px solid var(--linje-stark);
+    padding-block: var(--rum-7) var(--rum-5);
+  }
+
+  .sidfot__inre {
+    display: grid;
+    gap: var(--rum-6);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+
+  .sidfot__rubrik {
+    font-family: var(--typ-display);
+    font-size: var(--t-xl);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: var(--rad-rubrik);
+    margin-bottom: var(--rum-4);
+    max-width: 14ch;
+  }
+
+  .sidfot__epost {
+    font-family: var(--typ-display);
+    font-size: var(--t-l);
+    text-decoration-color: var(--linje-stark);
+  }
+
+  .sidfot__lankar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--rum-2);
+    align-content: start;
+    font-family: var(--typ-tb);
+    font-size: var(--t-xs);
+    letter-spacing: 0.02em;
+  }
+
+  .sidfot__kolofon {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding-top: var(--rum-5);
+    border-top: 1px solid var(--linje);
+  }
+
+  .sidfot__demo {
+    display: block;
+    margin-top: 0.5em;
+    color: var(--blakopia);
+  }
+
+  @media (max-width: 860px) {
+    .sidfot__inre {
+      grid-template-columns: 1fr;
+      gap: var(--rum-5);
+    }
+  }
+</style>

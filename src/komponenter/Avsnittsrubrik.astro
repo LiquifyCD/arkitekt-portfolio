@@ -1,0 +1,87 @@
+---
+interface Props {
+  etikett: string;
+  rubrik: string;
+  lank?: string;
+  lanktext?: string;
+}
+const { etikett, rubrik, lank, lanktext } = Astro.props;
+---
+
+<div class="avsnittsrubrik">
+  <p class="tb">{etikett}</p>
+  <div class="avsnittsrubrik__rad">
+    <h2>{rubrik}</h2>
+    {
+      lank && (
+        <a class="avsnittsrubrik__lank" href={lank}>
+          {lanktext ?? "Se alla"}
+          <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+            <path
+              d="M5 12h13m0 0-5-5m5 5-5 5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            />
+          </svg>
+        </a>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .avsnittsrubrik {
+    border-top: 1px solid var(--linje-stark);
+    padding-top: var(--rum-3);
+    margin-bottom: var(--rum-6);
+  }
+
+  .avsnittsrubrik__rad {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--rum-5);
+    margin-top: var(--rum-4);
+  }
+
+  h2 {
+    font-size: var(--t-xl);
+    font-weight: 500;
+  }
+
+  .avsnittsrubrik__lank {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-shrink: 0;
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid var(--linje-stark);
+    padding-bottom: 0.35em;
+    transition: border-color 140ms ease;
+  }
+
+  .avsnittsrubrik__lank:hover {
+    border-color: currentColor;
+  }
+
+  .avsnittsrubrik__lank svg {
+    transition: transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .avsnittsrubrik__lank:hover svg {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 620px) {
+    .avsnittsrubrik__rad {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--rum-4);
+    }
+  }
+</style>

@@ -1,0 +1,121 @@
+---
+import { Image } from "astro:assets";
+import { bild } from "../bilder";
+import { FILM } from "../consts";
+
+// Bädden hämtas först när besökaren startar filmen — inga tredjepartskakor
+// innan dess. Utan id visas bara affischbilden.
+const affisch = bild(FILM.affisch);
+const kalla =
+  FILM.leverantor === "vimeo"
+    ? `https://player.vimeo.com/video/${FILM.id}?autoplay=1&dnt=1`
+    : `https://www.youtube-nocookie.com/embed/${FILM.id}?autoplay=1`;
+const varifran = FILM.leverantor === "vimeo" ? "Vimeo" : "YouTube";
+---
+
+<figure class="film" data-film data-kalla={kalla} data-titel={FILM.titel}>
+  <button class="film__yta" type="button" data-film-start>
+    <Image
+      src={affisch}
+      alt=""
+      widths={[640, 1024, 1600, 1920]}
+      sizes="(max-width: 860px) 100vw, 88vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <span class="film__skiva">
+      <span class="film__spela">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M6 3.5 20 12 6 20.5z" fill="currentColor"></path>
+        </svg>
+        Spela {FILM.titel.toLowerCase()}
+      </span>
+    </span>
+  </button>
+  <figcaption class="tb film__notis">
+    Filmen laddas från {varifran} först när du startar den.
+  </figcaption>
+</figure>
+
+<style>
+  .film {
+    margin: 0;
+    position: relative;
+  }
+
+  .film__yta {
+    display: block;
+    position: relative;
+    width: 100%;
+    padding: 0;
+    background: var(--papper-djup);
+    overflow: hidden;
+  }
+
+  .film__yta :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  /* Tonar ned bildens underkant så att namnet ovanpå alltid går att läsa. */
+  .film__skiva {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(
+      to bottom,
+      transparent 55%,
+      color-mix(in srgb, var(--poche) 30%, transparent) 100%
+    );
+  }
+
+  .film__spela {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    background: var(--poche);
+    color: var(--norrljus);
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.85em 1.4em;
+    transition:
+      transform 160ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      background-color 160ms ease;
+  }
+
+  .film__yta:hover .film__spela {
+    transform: translateY(-2px);
+    background: var(--blakopia);
+  }
+
+  .film__notis {
+    margin-top: var(--rum-3);
+  }
+
+  .film :global(iframe) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-film]").forEach((film) => {
+    const start = film.querySelector<HTMLButtonElement>("[data-film-start]");
+    start?.addEventListener("click", () => {
+      const ram = document.createElement("iframe");
+      ram.src = film.dataset.kalla ?? "";
+      ram.title = film.dataset.titel ?? "Film";
+      ram.allow = "autoplay; fullscreen; picture-in-picture";
+      ram.setAttribute("allowfullscreen", "");
+      start.replaceWith(ram);
+      ram.focus();
+    });
+  });
+</script>

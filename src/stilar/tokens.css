@@ -1,0 +1,61 @@
+/* Designsystem.
+   Grunden är ritfilm, inte gräddpapper: en sval grågrön yta, grafitlinjer, och
+   det som är kapat fylls solitt svart — poché. Blåkopian används bara till
+   snittlinjen och fokusmarkering, aldrig som dekor. */
+
+:root {
+  /* Färg */
+  --papper: #e6e7e2;
+  --papper-djup: #dcded8;
+  --grafit: #191c1e;
+  --poche: #0a0b0c;
+  --norrljus: #f7f8f5;
+  --blakopia: #22467a;
+  --krita: #7c8179;
+
+  --linje: color-mix(in srgb, var(--grafit) 20%, transparent);
+  --linje-stark: color-mix(in srgb, var(--grafit) 42%, transparent);
+
+  /* Typsnitt */
+  --typ-display: "Familjen Grotesk Variable", "Helvetica Neue", Arial, sans-serif;
+  --typ-text: "Newsreader Variable", Georgia, "Times New Roman", serif;
+  --typ-tb: "Spline Sans Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Grad. "tb" = ritningens namnruta: mått, bildtexter, etiketter. */
+  --t-tb: 0.6875rem;
+  --t-xs: 0.8125rem;
+  --t-s: 0.9375rem;
+  --t-m: 1.0625rem;
+  --t-l: clamp(1.15rem, 0.92rem + 0.72vw, 1.5rem);
+  --t-xl: clamp(1.9rem, 1.2rem + 2.9vw, 3.4rem);
+  --t-2xl: clamp(2.6rem, 1rem + 6.6vw, 5.75rem);
+  --t-3xl: clamp(2.9rem, 0.4rem + 11.2vw, 10.5rem);
+
+  --rad-tat: 1.02;
+  --rad-rubrik: 1.1;
+  --rad-text: 1.62;
+
+  /* Rum */
+  --rum-1: 0.25rem;
+  --rum-2: 0.5rem;
+  --rum-3: 0.875rem;
+  --rum-4: 1.375rem;
+  --rum-5: 2.25rem;
+  --rum-6: 3.5rem;
+  --rum-7: 5.5rem;
+  --rum-8: clamp(4.5rem, 10vw, 9rem);
+
+  /* Mått */
+  --marg: clamp(1rem, 1rem + 4.5vw, 7rem);
+  --snitt-x: clamp(0.75rem, 0.4rem + 1.6vw, 2.75rem);
+  --matt: 88rem;
+  --matt-text: 34rem;
+  --topbar-h: 4.25rem;
+}
+
+@media (max-width: 860px) {
+  :root {
+    --topbar-h: 5.75rem;
+    --marg: 1.25rem;
+  }
+}

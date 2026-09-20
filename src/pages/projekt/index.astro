@@ -1,0 +1,261 @@
+---
+import { getCollection } from "astro:content";
+import Bas from "../../layouts/Bas.astro";
+import Projektkort from "../../komponenter/Projektkort.astro";
+import { KATEGORIER } from "../../consts";
+
+const projekt = (await getCollection("projekt")).sort((a, b) => a.data.ordning - b.data.ordning);
+
+// Visa bara kategorier som faktiskt har projekt.
+const anvanda = new Set(projekt.map((p) => p.data.kategori));
+const filter = [
+  { nyckel: "alla", text: "Alla" },
+  ...Object.entries(KATEGORIER)
+    .filter(([nyckel]) => anvanda.has(nyckel as keyof typeof KATEGORIER))
+    .map(([nyckel, text]) => ({ nyckel, text })),
+];
+---
+
+<Bas titel="Projekt" beskrivning="Bostäder, publika byggnader, stadsrum och skisser.">
+  <div class="sida topp" data-snitt="Projekt">
+    <p class="tb">Projekt</p>
+    <h1>Allt som är ritat</h1>
+    <p class="topp__ingress text-matt">
+      Sorterat i det urval jag själv skulle visa. Byt till årtal om du hellre
+      läser bakåt i tiden.
+    </p>
+  </div>
+
+  <div class="sida verktyg">
+    <div class="verktyg__rad">
+      <fieldset class="filter">
+        <legend class="dolj-visuellt">Filtrera på kategori</legend>
+        {
+          filter.map((f, i) => (
+            <button
+              type="button"
+              class:list={["chip", { "chip--aktiv": i === 0 }]}
+              data-filter={f.nyckel}
+              aria-pressed={i === 0 ? "true" : "false"}
+            >
+              {f.text}
+            </button>
+          ))
+        }
+      </fieldset>
+
+      <div class="sortera">
+        <span class="tb" id="sortera-etikett">Sortering</span>
+        <div class="sortera__knappar" role="group" aria-labelledby="sortera-etikett">
+          <button type="button" class="chip chip--aktiv" data-sortera="urval" aria-pressed="true">
+            Urval
+          </button>
+          <button type="button" class="chip" data-sortera="ar" aria-pressed="false">
+            Årtal
+          </button>
+        </div>
+      </div>
+    </div>
+    <p class="tb rakning" data-rakning aria-live="polite">{projekt.length} projekt</p>
+  </div>
+
+  <div class="sida">
+    <div class="rutnat" data-rutnat>
+      {projekt.map((p, i) => <Projektkort projekt={p} laddning={i < 3 ? "eager" : "lazy"} />)}
+    </div>
+    <p class="tomt" data-tomt hidden>
+      Inga projekt i den kategorin än.
+    </p>
+  </div>
+</Bas>
+
+<style>
+  .topp {
+    padding-top: var(--rum-7);
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    margin: var(--rum-4) 0 var(--rum-4);
+  }
+
+  .topp__ingress {
+    font-size: var(--t-l);
+    line-height: 1.45;
+    font-variation-settings: "opsz" 24;
+  }
+
+  .verktyg {
+    position: sticky;
+    top: var(--topbar-h);
+    z-index: 10;
+    background: var(--papper);
+    padding-block: var(--rum-4) var(--rum-3);
+    margin-top: var(--rum-6);
+    border-bottom: 1px solid var(--linje);
+  }
+
+  .verktyg__rad {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--rum-4);
+  }
+
+  .filter {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--rum-2);
+  }
+
+  .sortera {
+    display: flex;
+    align-items: center;
+    gap: var(--rum-3);
+  }
+
+  .sortera__knappar {
+    display: flex;
+    gap: var(--rum-2);
+  }
+
+  .chip {
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6em 0.95em;
+    border: 1px solid var(--linje-stark);
+    color: var(--grafit);
+    background: transparent;
+    transition:
+      background-color 130ms ease,
+      color 130ms ease,
+      border-color 130ms ease;
+  }
+
+  .chip:hover {
+    border-color: var(--grafit);
+  }
+
+  /* Valt filter fylls solid — samma poché som aktiv flik. */
+  .chip--aktiv {
+    background: var(--poche);
+    border-color: var(--poche);
+    color: var(--norrljus);
+  }
+
+  .rakning {
+    margin: var(--rum-3) 0 0;
+  }
+
+  /* Rutnät, inte spaltmasonry: projekten har en ordning och den ska gå att
+     läsa från vänster till höger. Bildernas egna proportioner behålls, så
+     raderna blir olika höga. */
+  .rutnat {
+    margin-top: var(--rum-6);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--rum-7) var(--rum-5);
+    align-items: start;
+  }
+
+  .tomt {
+    margin: var(--rum-7) 0 var(--rum-8);
+    font-size: var(--t-l);
+    color: var(--krita);
+  }
+
+  @media (max-width: 700px) {
+    .rutnat {
+      grid-template-columns: 1fr;
+      gap: var(--rum-6);
+    }
+    .verktyg {
+      position: static;
+    }
+    .verktyg__rad {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  const rutnat = document.querySelector<HTMLElement>("[data-rutnat]");
+  const rakning = document.querySelector<HTMLElement>("[data-rakning]");
+  const tomt = document.querySelector<HTMLElement>("[data-tomt]");
+  const filterKnappar = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-filter]"));
+  const sorteraKnappar = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-sortera]"));
+
+  if (rutnat) {
+    const kort = Array.from(rutnat.querySelectorAll<HTMLElement>(".kort"));
+    let kategori = "alla";
+    let sortering: "urval" | "ar" = "urval";
+
+    const markera = (knappar: HTMLButtonElement[], aktiv: HTMLButtonElement) => {
+      for (const k of knappar) {
+        const pa = k === aktiv;
+        k.classList.toggle("chip--aktiv", pa);
+        k.setAttribute("aria-pressed", String(pa));
+      }
+    };
+
+    const rita = () => {
+      const ordnade = [...kort].sort((a, b) =>
+        sortering === "ar"
+          ? Number(b.dataset.ar) - Number(a.dataset.ar)
+          : Number(a.dataset.ordning) - Number(b.dataset.ordning),
+      );
+
+      let synliga = 0;
+      for (const k of ordnade) {
+        const visa = kategori === "alla" || k.dataset.kategori === kategori;
+        k.hidden = !visa;
+        if (visa) synliga++;
+        rutnat.appendChild(k);
+      }
+
+      if (rakning) {
+        rakning.textContent = synliga === 1 ? "1 projekt" : `${synliga} projekt`;
+      }
+      if (tomt) tomt.hidden = synliga > 0;
+
+      const etikett = filterKnappar.find((k) => k.dataset.filter === kategori)?.textContent?.trim();
+      (window as any).snittlinje?.satt(0, etikett === "Alla" ? "Projekt" : (etikett ?? "Projekt"));
+
+      const url = new URL(location.href);
+      if (kategori === "alla") url.searchParams.delete("kategori");
+      else url.searchParams.set("kategori", kategori);
+      history.replaceState(null, "", url);
+    };
+
+    for (const knapp of filterKnappar) {
+      knapp.addEventListener("click", () => {
+        kategori = knapp.dataset.filter ?? "alla";
+        markera(filterKnappar, knapp);
+        rita();
+      });
+    }
+
+    for (const knapp of sorteraKnappar) {
+      knapp.addEventListener("click", () => {
+        sortering = (knapp.dataset.sortera as "urval" | "ar") ?? "urval";
+        markera(sorteraKnappar, knapp);
+        rita();
+      });
+    }
+
+    // Öppna direkt i rätt kategori om adressen säger det.
+    const fran = new URL(location.href).searchParams.get("kategori");
+    const traff = fran && filterKnappar.find((k) => k.dataset.filter === fran);
+    if (traff) traff.click();
+  }
+</script>

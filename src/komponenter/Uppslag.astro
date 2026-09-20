@@ -1,0 +1,197 @@
+---
+import { Image } from "astro:assets";
+import { bild } from "../bilder";
+
+interface Data {
+  typ: "helbild" | "bild-text" | "text-bild" | "bild-bild" | "text";
+  bild?: string;
+  bild2?: string;
+  bildtext?: string;
+  rubrik?: string;
+  text?: string;
+}
+
+interface Props {
+  data: Data;
+  nr: number;
+  antal: number;
+  projekttitel: string;
+}
+
+const { data, nr, antal, projekttitel } = Astro.props;
+const alt = (bildtext?: string) => bildtext ?? `${projekttitel}, uppslag ${nr}`;
+const bredder = [700, 1100, 1700];
+---
+
+<div
+  class:list={["uppslag", `uppslag--${data.typ}`]}
+  data-uppslag
+  data-nr={nr}
+  aria-label={`Uppslag ${nr} av ${antal}`}
+>
+  {
+    data.typ === "helbild" && data.bild && (
+      <figure class="ruta ruta--hel">
+        <Image
+          src={bild(data.bild)}
+          alt={alt(data.bildtext)}
+          widths={bredder}
+          sizes="(max-width: 860px) 92vw, 82vw"
+          loading={nr === 1 ? "eager" : "lazy"}
+        />
+        {data.bildtext && <figcaption class="tb bildtext">{data.bildtext}</figcaption>}
+      </figure>
+    )
+  }
+
+  {
+    (data.typ === "bild-text" || data.typ === "text-bild") && data.bild && (
+      <>
+        <figure class="ruta">
+          <Image
+            src={bild(data.bild)}
+            alt={alt(data.bildtext)}
+            widths={bredder}
+            sizes="(max-width: 860px) 92vw, 44vw"
+            loading={nr === 1 ? "eager" : "lazy"}
+          />
+          {data.bildtext && <figcaption class="tb bildtext">{data.bildtext}</figcaption>}
+        </figure>
+        <div class="brod">
+          {data.rubrik && <h3>{data.rubrik}</h3>}
+          {data.text && <p>{data.text}</p>}
+        </div>
+      </>
+    )
+  }
+
+  {
+    data.typ === "bild-bild" && data.bild && (
+      <>
+        <figure class="ruta">
+          <Image
+            src={bild(data.bild)}
+            alt={alt(data.bildtext)}
+            widths={bredder}
+            sizes="(max-width: 860px) 92vw, 44vw"
+            loading={nr === 1 ? "eager" : "lazy"}
+          />
+        </figure>
+        <figure class="ruta">
+          {data.bild2 && (
+            <Image
+              src={bild(data.bild2)}
+              alt={alt(data.bildtext)}
+              widths={bredder}
+              sizes="(max-width: 860px) 92vw, 44vw"
+              loading="lazy"
+            />
+          )}
+          {data.bildtext && <figcaption class="tb bildtext">{data.bildtext}</figcaption>}
+        </figure>
+      </>
+    )
+  }
+
+  {
+    data.typ === "text" && (
+      <div class="brod brod--ensam">
+        {data.rubrik && <h3>{data.rubrik}</h3>}
+        {data.text && <p>{data.text}</p>}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .uppslag {
+    display: grid;
+    gap: var(--rum-5);
+    align-content: center;
+  }
+
+  .uppslag--bild-text,
+  .uppslag--bild-bild {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .uppslag--text-bild {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .uppslag--text-bild .ruta {
+    order: 2;
+  }
+
+  .ruta {
+    margin: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--rum-3);
+  }
+
+  .ruta :global(img) {
+    width: 100%;
+    height: auto;
+    background: var(--papper-djup);
+  }
+
+  .bildtext {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    max-width: 44ch;
+  }
+
+  .brod {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    max-width: 38ch;
+  }
+
+  .brod--ensam {
+    max-width: var(--matt-text);
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  .brod h3 {
+    font-size: var(--t-xl);
+    font-weight: 500;
+    margin-bottom: var(--rum-4);
+  }
+
+  .brod p {
+    font-size: var(--t-m);
+    line-height: var(--rad-text);
+  }
+
+  .brod--ensam h3 {
+    font-size: var(--t-2xl);
+    letter-spacing: -0.035em;
+  }
+
+  .brod--ensam p {
+    font-size: var(--t-l);
+    line-height: 1.55;
+    font-variation-settings: "opsz" 24;
+  }
+
+  @media (max-width: 860px) {
+    .uppslag,
+    .uppslag--bild-text,
+    .uppslag--text-bild,
+    .uppslag--bild-bild {
+      grid-template-columns: 1fr;
+      gap: var(--rum-4);
+    }
+    .uppslag--text-bild .ruta {
+      order: 0;
+    }
+    .brod {
+      max-width: none;
+    }
+  }
+</style>

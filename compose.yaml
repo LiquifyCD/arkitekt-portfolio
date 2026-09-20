@@ -1,0 +1,13 @@
+services:
+  portfolio:
+    build: .
+    container_name: arkitekt-portfolio
+    restart: unless-stopped
+    # Loopback-bunden: ställ din befintliga reverse proxy framför den.
+    ports:
+      - "127.0.0.1:8088:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

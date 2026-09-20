@@ -1,0 +1,45 @@
+---
+import Bas from "../layouts/Bas.astro";
+---
+
+<Bas titel="Sidan finns inte">
+  <div class="sida fel">
+    <p class="tb">404</p>
+    <h1>Den sidan finns inte</h1>
+    <p class="fel__text text-matt">
+      Adressen leder ingenstans. Projekten ligger kvar där de brukar.
+    </p>
+    <p class="fel__lankar">
+      <a href="/projekt">Alla projekt</a>
+      <a href="/">Startsidan</a>
+    </p>
+  </div>
+</Bas>
+
+<style>
+  .fel {
+    padding-block: var(--rum-8);
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    margin: var(--rum-4) 0 var(--rum-4);
+  }
+
+  .fel__text {
+    font-size: var(--t-l);
+    line-height: 1.45;
+  }
+
+  .fel__lankar {
+    display: flex;
+    gap: var(--rum-5);
+    margin-top: var(--rum-6);
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>

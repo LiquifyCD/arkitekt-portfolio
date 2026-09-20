@@ -1,0 +1,57 @@
+---
+// Namnrutan — ritningens faktaruta. Etikett över värde, i mono, avgränsat med
+// hårfina linjer. Används för projektdata och för fakta om arkitekten.
+interface Post {
+  etikett: string;
+  varde: string;
+}
+interface Props {
+  poster: Post[];
+  kompakt?: boolean;
+}
+const { poster, kompakt = false } = Astro.props;
+---
+
+<dl class:list={["namnruta", { "namnruta--kompakt": kompakt }]}>
+  {
+    poster.map((post) => (
+      <div class="namnruta__post">
+        <dt class="tb">{post.etikett}</dt>
+        <dd>{post.varde}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .namnruta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px;
+    margin: 0;
+    background: var(--linje);
+    border-block: 1px solid var(--linje);
+  }
+
+  .namnruta__post {
+    background: var(--papper);
+    padding: var(--rum-3) var(--rum-4) var(--rum-4);
+  }
+
+  .namnruta--kompakt .namnruta__post {
+    padding: var(--rum-2) var(--rum-3) var(--rum-3);
+  }
+
+  dt {
+    margin-bottom: 0.45em;
+  }
+
+  dd {
+    margin: 0;
+    font-family: var(--typ-display);
+    font-size: var(--t-s);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+</style>

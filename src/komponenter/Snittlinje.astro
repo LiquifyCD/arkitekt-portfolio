@@ -1,0 +1,163 @@
+---
+// Snittlinjen. Sidans signaturelement: en hårfin linje i vänstermarginalen med
+// ett kraftigt streckat segment och riktningspilar — som en snittmarkering på
+// en ritning. Segmentet visar var i dokumentet du står, etiketten vad du tittar
+// på. Läget "manuell" låter sidan styra position och etikett själv (boken).
+interface Props {
+  lage?: "rulla" | "manuell";
+  etikett?: string;
+}
+const { lage = "rulla", etikett = "" } = Astro.props;
+---
+
+<div class="snitt" data-snitt-rot data-snitt-lage={lage} aria-hidden="true">
+  <div class="snitt__spar"></div>
+  <div class="snitt__markor">
+    <span class="snitt__pil snitt__pil--topp"></span>
+    <span class="snitt__stang"></span>
+    <span class="snitt__pil snitt__pil--botten"></span>
+    <span class="snitt__etikett" data-snitt-etikett>{etikett}</span>
+  </div>
+</div>
+
+<style>
+  .snitt {
+    position: fixed;
+    left: var(--snitt-x);
+    top: var(--topbar-h);
+    bottom: 0;
+    width: 1px;
+    z-index: 5;
+    pointer-events: none;
+    --snitt-p: 0;
+    --snitt-h: 24%;
+  }
+
+  .snitt__spar {
+    position: absolute;
+    inset: 0;
+    background: var(--linje);
+  }
+
+  .snitt__markor {
+    position: absolute;
+    left: 0;
+    width: 1px;
+    height: var(--snitt-h);
+    top: calc(var(--snitt-p) * (100% - var(--snitt-h)));
+    transition: top 260ms cubic-bezier(0.22, 0.7, 0.2, 1);
+  }
+
+  .snitt__stang {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    width: 3px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--blakopia) 0 13px,
+      transparent 13px 21px
+    );
+  }
+
+  /* Pilarna pekar in mot innehållet — åt hållet snittet betraktas. */
+  .snitt__pil {
+    position: absolute;
+    left: 3px;
+    width: 0;
+    height: 0;
+    border-top: 4.5px solid transparent;
+    border-bottom: 4.5px solid transparent;
+    border-left: 7px solid var(--blakopia);
+  }
+  .snitt__pil--topp {
+    top: -1px;
+  }
+  .snitt__pil--botten {
+    bottom: -1px;
+  }
+
+  .snitt__etikett {
+    position: absolute;
+    left: 11px;
+    top: 0;
+    writing-mode: vertical-rl;
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--blakopia);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 860px) {
+    .snitt {
+      top: 0;
+      --snitt-h: 18%;
+    }
+    .snitt__etikett,
+    .snitt__pil {
+      display: none;
+    }
+    .snitt__stang {
+      background: var(--blakopia);
+      width: 2px;
+      left: 0;
+    }
+  }
+</style>
+
+<script>
+  const rot = document.querySelector<HTMLElement>("[data-snitt-rot]");
+  const etikett = document.querySelector<HTMLElement>("[data-snitt-etikett]");
+
+  if (rot) {
+    const manuell = rot.dataset.snittLage === "manuell";
+
+    // Sidan kan styra snittlinjen direkt — boken gör det per uppslag.
+    (window as any).snittlinje = {
+      satt(andel: number, text?: string) {
+        rot.style.setProperty("--snitt-p", String(Math.min(1, Math.max(0, andel))));
+        if (text !== undefined && etikett) etikett.textContent = text;
+      },
+    };
+
+    if (!manuell) {
+      const avsnitt = Array.from(document.querySelectorAll<HTMLElement>("[data-snitt]"));
+      let senaste = "";
+      let vantar = false;
+
+      const uppdatera = () => {
+        vantar = false;
+        const doc = document.documentElement;
+        const max = doc.scrollHeight - window.innerHeight;
+        const andel = max > 8 ? window.scrollY / max : 0;
+        rot.style.setProperty("--snitt-p", String(Math.min(1, Math.max(0, andel))));
+
+        if (!avsnitt.length || !etikett) return;
+        const brytpunkt = window.innerHeight * 0.42;
+        let aktiv = avsnitt[0];
+        for (const a of avsnitt) {
+          if (a.getBoundingClientRect().top <= brytpunkt) aktiv = a;
+        }
+        const text = aktiv?.dataset.snitt ?? "";
+        if (text !== senaste) {
+          senaste = text;
+          etikett.textContent = text;
+        }
+      };
+
+      const schemalagg = () => {
+        if (vantar) return;
+        vantar = true;
+        requestAnimationFrame(uppdatera);
+      };
+
+      addEventListener("scroll", schemalagg, { passive: true });
+      addEventListener("resize", schemalagg);
+      uppdatera();
+    }
+  }
+</script>
