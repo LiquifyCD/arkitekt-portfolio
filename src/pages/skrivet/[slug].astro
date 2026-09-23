@@ -1,0 +1,89 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Bas from "../../layouts/Bas.astro";
+import Bok from "../../komponenter/Bok.astro";
+import { intern } from "../../lankar";
+
+export async function getStaticPaths() {
+  const texter = await getCollection("texter");
+  return texter.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: CollectionEntry<"texter">;
+}
+
+const { post } = Astro.props;
+const d = post.data;
+const { Content } = await render(post);
+---
+
+<Bas titel={d.titel} beskrivning={d.sammanfattning}>
+  <article>
+    <header class="sida topp">
+      <a class="tb tillbaka" href={intern("/skrivet")}>
+        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+          <path d="M19 12H6m0 0 5-5m-5 5 5 5" fill="none" stroke="currentColor" stroke-width="2.2"
+          ></path>
+        </svg>
+        Skrivet av mig
+      </a>
+      <h1>{d.titel}</h1>
+      <p class="tb">{d.slag} — {d.ar}</p>
+      <p class="ingress text-matt">{d.sammanfattning}</p>
+    </header>
+
+    {
+      d.uppslag.length > 0 && (
+        <div class="sida bok">
+          <Bok uppslag={d.uppslag} titel={d.titel} papper />
+        </div>
+      )
+    }
+
+    <div class="sida">
+      <div class="efter text-matt">
+        <Content />
+      </div>
+    </div>
+  </article>
+</Bas>
+
+<style>
+  .topp {
+    padding-top: var(--rum-6);
+  }
+
+  .tillbaka {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    text-decoration: none;
+    color: var(--krita);
+  }
+
+  .tillbaka:hover {
+    color: var(--grafit);
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.042em;
+    margin: var(--rum-4) 0 var(--rum-3);
+  }
+
+  .ingress {
+    font-size: var(--t-l);
+    line-height: 1.45;
+    margin-top: var(--rum-4);
+  }
+
+  .bok {
+    margin-top: var(--rum-7);
+  }
+
+  .efter {
+    margin-top: var(--rum-6);
+  }
+</style>

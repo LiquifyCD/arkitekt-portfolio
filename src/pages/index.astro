@@ -1,236 +1,435 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { Image } from "astro:assets";
 import Bas from "../layouts/Bas.astro";
 import Film from "../komponenter/Film.astro";
+import Bok from "../komponenter/Bok.astro";
 import Projektkort from "../komponenter/Projektkort.astro";
-import Avsnittsrubrik from "../komponenter/Avsnittsrubrik.astro";
 import { bild } from "../bilder";
-import { ARKITEKT } from "../consts";
+import { KATEGORIER, MANIFEST, STARTSIDA } from "../consts";
+import { intern } from "../lankar";
 
 const projekt = (await getCollection("projekt")).sort((a, b) => a.data.ordning - b.data.ordning);
-const urval = projekt.slice(0, 3);
-
-const galleri = (await getCollection("galleri"))
-  .sort((a, b) => a.data.ordning - b.data.ordning)
-  .slice(0, 5);
-
-const steg = [
-  {
-    nr: "01",
-    rubrik: "Platsen först",
-    text: "Mätning, solstudie och en dag på tomten innan en enda linje ritas. Det mesta är redan bestämt av marken.",
-  },
-  {
-    nr: "02",
-    rubrik: "Snitt före plan",
-    text: "Huset förstås genom att kapas. Sektionen avgör dagsljus, höjder och hur trappan går — planen följer av den.",
-  },
-  {
-    nr: "03",
-    rubrik: "Modell i handen",
-    text: "Varje skede får en fysisk modell. Det går inte att gömma ett dåligt förhållande mellan volymer i papp.",
-  },
-];
+const text = await getEntry("texter", STARTSIDA.bok);
+const kik = await getEntry("projekt", STARTSIDA.extraKik);
+if (!text || !kik) {
+  throw new Error("STARTSIDA i src/consts.ts pekar på en text eller ett projekt som inte finns.");
+}
+const kikKategori = KATEGORIER[kik.data.kategori];
 ---
 
 <Bas>
-  <section class="hero" data-snitt="Manifest">
-    <div class="sida">
-      <p class="tb hero__ogonbryn">{ARKITEKT.titel} — {ARKITEKT.ort}</p>
-      <h1 class="hero__namn">{ARKITEKT.namn}</h1>
-      <p class="hero__ingress">{ARKITEKT.ingress}</p>
-      <div class="hero__film">
-        <Film />
-      </div>
-    </div>
+  <section class="sida hero" aria-label="Film">
+    <Film />
   </section>
 
-  <section class="avsnitt" data-snitt="Urval">
-    <div class="sida">
-      <Avsnittsrubrik
-        etikett="Projekt"
-        rubrik="Ett urval"
-        lank="/projekt"
-        lanktext="Alla projekt"
-      />
-      <div class="urval">
-        {urval.map((p) => <Projektkort projekt={p} />)}
-      </div>
-    </div>
+  <section class="sida manifest" aria-label="Manifest">
+    <p class="manifest__text">{MANIFEST}</p>
   </section>
 
-  <section class="avsnitt" data-snitt="Galleri">
-    <div class="sida">
-      <Avsnittsrubrik
-        etikett="Galleri"
-        rubrik="Modeller"
-        lank="/galleri"
-        lanktext="Hela galleriet"
-      />
+  <section class="projekt" aria-labelledby="rubrik-projekt">
+    <div class="sida rubrikrad">
+      <h2 id="rubrik-projekt">Projekt!</h2>
+      <div class="pilar" data-pilar hidden>
+        <button type="button" class="pil" data-pil="-1" aria-label="Föregående">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+        </button>
+        <button type="button" class="pil" data-pil="1" aria-label="Nästa">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
     </div>
-    <ul class="remsa">
-      {
-        galleri.map((post) => (
-          <li class="remsa__post">
+
+    <ul class="karusell" data-karusell>
+      <li class="karusell__post">
+        <a class="ommig" href={intern("/om-mig")}>
+          <span class="ommig__bild">
             <Image
-              src={bild(post.data.bild)}
-              alt={post.data.bildtext}
-              widths={[320, 560, 900]}
-              sizes="(max-width: 860px) 62vw, 22vw"
-              loading="lazy"
+              src={bild("portratt.jpg")}
+              alt=""
+              widths={[360, 640]}
+              sizes="(max-width: 700px) 78vw, 22rem"
             />
-            <p class="tb remsa__text">{post.data.bildtext}</p>
+          </span>
+          <span class="ommig__text">
+            <span class="ommig__rubrik">Om mig</span>
+            <span class="tb">Vem som ritar, och varför</span>
+          </span>
+        </a>
+      </li>
+      {
+        projekt.map((p) => (
+          <li class="karusell__post">
+            <Projektkort projekt={p} />
           </li>
         ))
       }
+      <li class="karusell__post karusell__post--slut">
+        <a class="alla" href={intern("/projekt")}>
+          Alla projekt
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+            <path d="M5 12h13m0 0-5-5m5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"
+            ></path>
+          </svg>
+        </a>
+      </li>
     </ul>
   </section>
 
-  <section class="avsnitt" data-snitt="Metodik">
-    <div class="sida">
-      <Avsnittsrubrik
-        etikett="Metodik"
-        rubrik="Tankeprocessen"
-        lank="/metodik"
-        lanktext="Läs mer"
-      />
-      <ol class="flode">
-        {
-          steg.map((s) => (
-            <li class="flode__steg">
-              <span class="tb flode__nr">{s.nr}</span>
-              <h3 class="flode__rubrik">{s.rubrik}</h3>
-              <p class="flode__text">{s.text}</p>
-            </li>
-          ))
-        }
-      </ol>
+  <section class="sida ordet" aria-labelledby="rubrik-ordet">
+    <h2 class="ordet__rubrik" id="rubrik-ordet">{text.data.titel}</h2>
+    <Bok uppslag={text.data.uppslag} titel={text.data.titel} papper kompakt />
+    <div class="ordet__beskrivning">
+      <p class="tb">{text.data.slag}</p>
+      <p>{text.data.sammanfattning}</p>
+      <a class="lank" href={intern(`/skrivet/${text.id}`)}>Läs hela texten</a>
     </div>
+  </section>
+
+  <section class="sida kik" aria-labelledby="rubrik-kik">
+    <h2 class="kik__rubrik" id="rubrik-kik">Ta en extra kik!</h2>
+    <a class="kik__kort" href={intern(`/projekt/${kik.id}`)} style={`--k: ${kikKategori.farg}`}>
+      <span class="kik__bild">
+        <Image
+          src={bild(kik.data.omslag)}
+          alt={kik.data.titel}
+          widths={[560, 900, 1400]}
+          sizes="(max-width: 860px) 92vw, 50vw"
+        />
+      </span>
+      <span class="kik__text">
+        <span class="tb kik__etikett">
+          <span class="kik__ruta" aria-hidden="true"></span>
+          {kik.data.roll} — {kik.data.ar}
+        </span>
+        <span class="kik__titel">{kik.data.titel}</span>
+        <span class="kik__sammanfattning">{kik.data.sammanfattning}</span>
+        <span class="lank">Se projektet</span>
+      </span>
+    </a>
   </section>
 </Bas>
 
 <style>
   .hero {
-    padding-top: var(--rum-7);
+    padding-top: var(--rum-5);
   }
 
-  .hero__ogonbryn {
-    margin: 0 0 var(--rum-4);
+  .manifest {
+    padding-block: var(--rum-7);
   }
 
-  .hero__namn {
-    font-size: clamp(2.4rem, 9.2vw, 8rem);
+  .manifest__text {
+    font-family: var(--typ-display);
+    font-size: var(--t-xl);
+    font-weight: 500;
+    letter-spacing: -0.028em;
+    line-height: 1.12;
+    max-width: 26ch;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-size: var(--t-xl);
     font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 0.92;
+    letter-spacing: -0.03em;
+  }
+
+  /* Projekt! — skissens remsa: Om mig först, sedan projekten, pil vidare. */
+  .rubrikrad {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--rum-4);
     margin-bottom: var(--rum-5);
   }
 
-  .hero__ingress {
-    font-size: var(--t-l);
-    line-height: 1.45;
-    max-width: 38ch;
-    margin-bottom: var(--rum-7);
-    font-variation-settings: "opsz" 28;
+  .pilar {
+    display: flex;
+    gap: var(--rum-2);
   }
 
-  .hero__film {
-    margin-bottom: var(--rum-6);
-  }
-
-  .avsnitt {
-    padding-block: var(--rum-7) 0;
-  }
-
-  .urval {
+  .pil {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
-    gap: var(--rum-6) var(--rum-5);
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--linje-stark);
+    transition:
+      background-color 140ms ease,
+      color 140ms ease;
   }
 
-  /* Remsan får spilla ut i marginalen och skrollas i sidled. */
-  .remsa {
+  .pil:hover:not(:disabled) {
+    background: var(--poche);
+    color: var(--norrljus);
+  }
+
+  .pil:disabled {
+    opacity: 0.28;
+    cursor: default;
+  }
+
+  .karusell {
     list-style: none;
     margin: 0;
-    padding: 0 var(--marg);
+    padding: 0 var(--marg) var(--rum-3);
     display: flex;
     gap: var(--rum-4);
     overflow-x: auto;
-    scrollbar-width: thin;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--marg);
+    scrollbar-width: none;
   }
 
-  .remsa__post {
-    flex: 0 0 clamp(13rem, 22vw, 20rem);
+  .karusell::-webkit-scrollbar {
+    display: none;
   }
 
-  .remsa__post :global(img) {
+  .karusell__post {
+    flex: 0 0 clamp(15rem, 26vw, 22rem);
+    scroll-snap-align: start;
+  }
+
+  .ommig {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    background: var(--poche);
+    color: var(--norrljus);
+  }
+
+  .ommig__bild {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .ommig__bild :global(img) {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 300ms ease;
+  }
+
+  .ommig:hover .ommig__bild :global(img) {
+    filter: none;
+  }
+
+  .ommig__text {
+    display: grid;
+    gap: var(--rum-2);
+    padding: var(--rum-4);
+  }
+
+  .ommig__rubrik {
+    font-family: var(--typ-display);
+    font-size: var(--t-xl);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .ommig .tb {
+    color: color-mix(in srgb, var(--norrljus) 70%, transparent);
+  }
+
+  .karusell__post--slut {
+    flex-basis: clamp(10rem, 16vw, 14rem);
+  }
+
+  .alla {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    aspect-ratio: 3 / 4;
+    padding: var(--rum-4);
+    border: 1px solid var(--linje-stark);
+    font-family: var(--typ-display);
+    font-size: var(--t-l);
+    text-decoration: none;
+    transition: background-color 160ms ease;
+  }
+
+  .alla:hover {
     background: var(--papper-djup);
   }
 
-  .remsa__text {
-    margin: var(--rum-3) 0 0;
-    text-transform: none;
-    letter-spacing: 0.02em;
+  /* Ordets makt: boken, och beskrivningen under den. */
+  .ordet {
+    margin-top: var(--rum-8);
   }
 
-  .flode {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .ordet__rubrik {
+    text-align: center;
+    margin-bottom: var(--rum-5);
+  }
+
+  .ordet__beskrivning {
+    max-width: var(--matt-text);
+    margin: var(--rum-6) auto 0;
+    text-align: center;
+  }
+
+  .ordet__beskrivning .tb {
+    margin-bottom: var(--rum-3);
+  }
+
+  .lank {
+    display: inline-block;
+    margin-top: var(--rum-3);
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid var(--linje-stark);
+    padding-bottom: 0.3em;
+  }
+
+  .lank:hover {
+    border-color: currentColor;
+  }
+
+  /* Ta en extra kik! */
+  .kik {
+    margin-top: var(--rum-8);
+  }
+
+  .kik__rubrik {
+    margin-bottom: var(--rum-5);
+  }
+
+  .kik__kort {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: 1px;
-    background: var(--linje);
-    border-block: 1px solid var(--linje);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: var(--rum-6);
+    align-items: center;
+    padding: var(--rum-4);
+    border: 1px solid var(--linje-stark);
+    text-decoration: none;
   }
 
-  .flode__steg {
-    background: var(--papper);
-    padding: var(--rum-4) var(--rum-4) var(--rum-5);
-    position: relative;
+  .kik__bild {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--papper-djup);
   }
 
-  /* Pilen mellan stegen — skissens [ ] → [ ] → [ ]. */
-  .flode__steg:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: var(--rum-5);
-    right: -7px;
-    width: 0;
-    height: 0;
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 8px solid var(--grafit);
-    z-index: 1;
+  .kik__bild :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  .flode__nr {
-    color: var(--blakopia);
+  .kik__kort:hover .kik__bild :global(img) {
+    transform: scale(1.02);
   }
 
-  .flode__rubrik {
-    font-size: var(--t-l);
-    margin: var(--rum-3) 0 var(--rum-3);
+  .kik__text {
+    display: grid;
+    gap: var(--rum-3);
+    justify-items: start;
+    padding-right: var(--rum-4);
   }
 
-  .flode__text {
-    font-size: var(--t-s);
-    color: color-mix(in srgb, var(--grafit) 80%, var(--papper));
+  .kik__etikett {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
   }
 
-  @media (max-width: 700px) {
-    .flode__steg:not(:last-child)::after {
-      top: auto;
-      right: auto;
-      bottom: -7px;
-      left: var(--rum-4);
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 8px solid var(--grafit);
-      border-bottom: 0;
+  .kik__ruta {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--k);
+  }
+
+  .kik__titel {
+    font-family: var(--typ-display);
+    font-size: var(--t-xl);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: var(--rad-rubrik);
+  }
+
+  .kik__sammanfattning {
+    font-size: var(--t-m);
+  }
+
+  @media (max-width: 860px) {
+    .hero {
+      padding-top: var(--rum-4);
+      padding-inline: 0;
+    }
+
+    .hero :global(.film__notis) {
+      padding-inline: var(--marg);
+    }
+
+    .manifest {
+      padding-block: var(--rum-6);
+    }
+
+    .karusell__post {
+      flex-basis: 78vw;
+    }
+
+    .karusell__post--slut {
+      flex-basis: 44vw;
+    }
+
+    .kik__kort {
+      grid-template-columns: 1fr;
+      gap: var(--rum-4);
+    }
+
+    .kik__text {
+      padding: 0 0 var(--rum-2);
     }
   }
 </style>
+
+<script>
+  const karusell = document.querySelector<HTMLElement>("[data-karusell]");
+  const pilar = document.querySelector<HTMLElement>("[data-pilar]");
+
+  if (karusell && pilar) {
+    const knappar = Array.from(pilar.querySelectorAll<HTMLButtonElement>("[data-pil]"));
+    const steg = () => {
+      const forsta = karusell.querySelector<HTMLElement>(".karusell__post");
+      const glapp = parseFloat(getComputedStyle(karusell).columnGap) || 0;
+      return (forsta?.offsetWidth ?? 300) + glapp;
+    };
+
+    const uppdatera = () => {
+      const max = karusell.scrollWidth - karusell.clientWidth - 2;
+      pilar.hidden = max <= 0;
+      knappar[0].disabled = karusell.scrollLeft <= 2;
+      knappar[1].disabled = karusell.scrollLeft >= max;
+    };
+
+    for (const knapp of knappar) {
+      knapp.addEventListener("click", () => {
+        const lugn = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        karusell.scrollBy({
+          left: Number(knapp.dataset.pil) * steg(),
+          behavior: lugn ? "auto" : "smooth",
+        });
+      });
+    }
+
+    karusell.addEventListener("scroll", uppdatera, { passive: true });
+    addEventListener("resize", uppdatera);
+    uppdatera();
+  }
+</script>

@@ -1,0 +1,85 @@
+---
+import { getCollection } from "astro:content";
+import Bas from "../../layouts/Bas.astro";
+import { intern } from "../../lankar";
+
+const texter = (await getCollection("texter")).sort((a, b) => a.data.ordning - b.data.ordning);
+---
+
+<Bas titel="Skrivet av mig" beskrivning="Uppsatser, essäer och manifest.">
+  <div class="sida topp">
+    <h1>Skrivet av mig</h1>
+  </div>
+
+  <div class="sida">
+    <ul class="lista">
+      {
+        texter.map((t) => (
+          <li>
+            <a class="post" href={intern(`/skrivet/${t.id}`)}>
+              <span class="tb">
+                {t.data.slag} — {t.data.ar}
+              </span>
+              <span class="post__titel">{t.data.titel}</span>
+              <span class="post__text">{t.data.sammanfattning}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Bas>
+
+<style>
+  .topp {
+    padding-top: var(--rum-7);
+    margin-bottom: var(--rum-6);
+  }
+
+  h1 {
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+
+  .lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--linje-stark);
+  }
+
+  .post {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) minmax(0, 2fr) minmax(0, 2fr);
+    gap: var(--rum-2) var(--rum-5);
+    align-items: baseline;
+    padding-block: var(--rum-5);
+    border-top: 1px solid var(--linje-stark);
+    text-decoration: none;
+  }
+
+  .post__titel {
+    font-family: var(--typ-display);
+    font-size: var(--t-xl);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: var(--rad-rubrik);
+  }
+
+  .post:hover .post__titel {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.14em;
+  }
+
+  .post__text {
+    color: color-mix(in srgb, var(--grafit) 78%, var(--papper));
+  }
+
+  @media (max-width: 860px) {
+    .post {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

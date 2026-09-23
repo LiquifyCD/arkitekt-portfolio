@@ -1,0 +1,326 @@
+---
+import Uppslag from "./Uppslag.astro";
+
+interface Props {
+  uppslag: {
+    typ: "helbild" | "bild-text" | "text-bild" | "bild-bild" | "text";
+    bild?: string;
+    bild2?: string;
+    bildtext?: string;
+    rubrik?: string;
+    text?: string;
+  }[];
+  titel: string;
+  // "papper": uppslagen sätts på ljusa boksidor med rygg i mitten.
+  // "kompakt": på smal skärm sveps uppslagen i sidled i stället för att staplas.
+  papper?: boolean;
+  kompakt?: boolean;
+}
+
+const { uppslag, titel, papper = false, kompakt = false } = Astro.props;
+const antal = uppslag.length;
+---
+
+<section
+  class:list={["bok", { "bok--papper": papper, "bok--kompakt": kompakt }]}
+  data-bok
+  aria-label={`${titel}, uppslag för uppslag`}
+>
+  <div class="bok__scen" data-scen>
+    {uppslag.map((u, i) => <Uppslag data={u} nr={i + 1} antal={antal} projekttitel={titel} />)}
+  </div>
+
+  <div class="bok__styr" data-styr hidden>
+    <button type="button" class="blad" data-bak aria-label="Föregående uppslag">
+      <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+        <path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </svg>
+    </button>
+    <p class="tb raknare" data-raknare aria-live="polite">
+      01 / {String(antal).padStart(2, "0")}
+    </p>
+    <button type="button" class="blad" data-fram aria-label="Nästa uppslag">
+      <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+        <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </svg>
+    </button>
+    <p class="tb bok__tips">Bläddra med piltangenterna</p>
+  </div>
+</section>
+
+<style>
+  /* Utan JS, och på små skärmar, ligger uppslagen efter varandra och rullas. */
+  .bok__scen {
+    display: grid;
+    gap: var(--rum-8);
+  }
+
+  .bok__styr {
+    display: flex;
+    align-items: center;
+    gap: var(--rum-4);
+    margin-top: var(--rum-5);
+    padding-top: var(--rum-4);
+    border-top: 1px solid var(--linje-stark);
+  }
+
+  .blad {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--linje-stark);
+    transition:
+      background-color 140ms ease,
+      color 140ms ease,
+      border-color 140ms ease;
+  }
+
+  .blad:hover:not(:disabled) {
+    background: var(--poche);
+    border-color: var(--poche);
+    color: var(--norrljus);
+  }
+
+  .blad:disabled {
+    opacity: 0.28;
+    cursor: default;
+  }
+
+  .raknare {
+    margin: 0;
+    min-width: 5.5ch;
+    color: var(--grafit);
+    font-size: var(--t-xs);
+    letter-spacing: 0.14em;
+  }
+
+  .bok__tips {
+    margin: 0 0 0 auto;
+  }
+
+  /* Bokläge: uppslagen ligger på varandra, ett i taget. */
+  .bok[data-lage="bok"] .bok__scen {
+    position: relative;
+    display: block;
+    height: clamp(26rem, 70vh, 48rem);
+  }
+
+  .bok[data-lage="bok"] .bok__scen :global(.uppslag) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(var(--in, 0));
+    transition:
+      opacity 260ms ease,
+      transform 340ms cubic-bezier(0.22, 0.7, 0.2, 1),
+      visibility 0s linear 340ms;
+  }
+
+  .bok[data-lage="bok"] .bok__scen :global(.uppslag[data-aktiv]) {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(0);
+    transition-delay: 0s;
+  }
+
+  .bok[data-lage="bok"] .bok__scen :global(.uppslag img) {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
+    background: transparent;
+  }
+
+  .bok[data-lage="bok"] .bok__scen :global(.ruta) {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .bok[data-lage="bok"] .bok__scen :global(figcaption) {
+    flex: 0 0 auto;
+  }
+
+  /* Pappersbok: ljusa sidor, en rygg i mitten och brödtexten i två spalter, så
+     att ett textuppslag läses som vänster- och högersida. */
+  .bok--papper .bok__scen {
+    background:
+      linear-gradient(
+        to right,
+        transparent calc(50% - 1.6rem),
+        color-mix(in srgb, var(--grafit) 7%, transparent) 50%,
+        transparent calc(50% + 1.6rem)
+      ),
+      var(--norrljus);
+    box-shadow:
+      0 1px 0 var(--linje),
+      0 24px 48px -32px color-mix(in srgb, var(--grafit) 45%, transparent);
+  }
+
+  .bok--papper[data-lage="bok"] .bok__scen {
+    height: clamp(24rem, 62vh, 38rem);
+  }
+
+  .bok--papper .bok__scen :global(.uppslag) {
+    padding: clamp(1.75rem, 4vw, 4rem);
+  }
+
+  .bok--papper .bok__scen :global(.brod--ensam) {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+  }
+
+  .bok--papper .bok__scen :global(.brod--ensam h3) {
+    font-size: var(--t-xl);
+    width: calc(50% - clamp(1.75rem, 4vw, 4rem));
+  }
+
+  .bok--papper .bok__scen :global(.brod--ensam p) {
+    columns: 2;
+    column-gap: calc(2 * clamp(1.75rem, 4vw, 4rem));
+    font-family: var(--typ-text);
+    font-size: var(--t-m);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 860px) {
+    .bok__tips {
+      display: none;
+    }
+    .bok__scen {
+      gap: var(--rum-7);
+    }
+
+    .bok--papper .bok__scen {
+      background: var(--norrljus);
+      gap: 0;
+    }
+
+    .bok--papper .bok__scen :global(.brod--ensam h3) {
+      width: auto;
+    }
+
+    .bok--papper .bok__scen :global(.brod--ensam p) {
+      columns: 1;
+    }
+
+    /* Kompakt: en sida i taget, svep i sidled. Nästa sida sticker fram i
+       kanten så att det syns att det går att bläddra. */
+    .bok--kompakt .bok__scen {
+      grid-auto-flow: column;
+      grid-auto-columns: 86%;
+      gap: var(--rum-3);
+      background: none;
+      box-shadow: none;
+      padding-bottom: var(--rum-4);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .bok--kompakt .bok__scen::-webkit-scrollbar {
+      display: none;
+    }
+
+    .bok--kompakt .bok__scen :global(.uppslag) {
+      scroll-snap-align: start;
+    }
+
+    .bok--papper.bok--kompakt .bok__scen :global(.uppslag) {
+      background: var(--norrljus);
+      box-shadow: 0 1px 0 var(--linje);
+    }
+  }
+</style>
+
+<script>
+  for (const bok of document.querySelectorAll<HTMLElement>("[data-bok]")) {
+    const scen = bok.querySelector<HTMLElement>("[data-scen]");
+    const styr = bok.querySelector<HTMLElement>("[data-styr]");
+    const raknare = bok.querySelector<HTMLElement>("[data-raknare]");
+    const bak = bok.querySelector<HTMLButtonElement>("[data-bak]");
+    const fram = bok.querySelector<HTMLButtonElement>("[data-fram]");
+    const uppslag = Array.from(bok.querySelectorAll<HTMLElement>("[data-uppslag]"));
+    const antal = uppslag.length;
+    if (!antal) continue;
+
+    const bred = window.matchMedia("(min-width: 861px)");
+    let nr = 0;
+
+    const tvasiffror = (n: number) => String(n).padStart(2, "0");
+
+    const visa = (nytt: number, riktning = 0) => {
+      nr = Math.max(0, Math.min(antal - 1, nytt));
+      uppslag.forEach((u, i) => {
+        u.style.setProperty("--in", i === nr ? "0" : riktning >= 0 ? "14px" : "-14px");
+        u.toggleAttribute("data-aktiv", i === nr);
+        u.setAttribute("aria-hidden", i === nr ? "false" : "true");
+      });
+      if (raknare) raknare.textContent = `${tvasiffror(nr + 1)} / ${tvasiffror(antal)}`;
+      if (bak) bak.disabled = nr === 0;
+      if (fram) fram.disabled = nr === antal - 1;
+    };
+
+    const bladdra = (steg: number) => visa(nr + steg, steg);
+
+    const slaPa = () => {
+      bok.dataset.lage = "bok";
+      if (styr) styr.hidden = false;
+      visa(nr);
+    };
+
+    const slaAv = () => {
+      delete bok.dataset.lage;
+      if (styr) styr.hidden = true;
+      for (const u of uppslag) {
+        u.removeAttribute("data-aktiv");
+        u.removeAttribute("aria-hidden");
+        u.style.removeProperty("--in");
+      }
+    };
+
+    const stall = () => (bred.matches ? slaPa() : slaAv());
+
+    bak?.addEventListener("click", () => bladdra(-1));
+    fram?.addEventListener("click", () => bladdra(1));
+    bred.addEventListener("change", stall);
+
+    // Piltangenterna bläddrar bara i den bok som syns, om sidan har flera.
+    addEventListener("keydown", (e) => {
+      if (!bred.matches || document.querySelector("dialog[open]")) return;
+      const fokus = document.activeElement?.tagName;
+      if (fokus === "INPUT" || fokus === "TEXTAREA") return;
+      const ruta = bok.getBoundingClientRect();
+      if (ruta.bottom < innerHeight * 0.25 || ruta.top > innerHeight * 0.75) return;
+      if (e.key === "ArrowRight") bladdra(1);
+      else if (e.key === "ArrowLeft") bladdra(-1);
+    });
+
+    let startX = 0;
+    let startY = 0;
+    scen?.addEventListener(
+      "pointerdown",
+      (e) => {
+        startX = e.clientX;
+        startY = e.clientY;
+      },
+      { passive: true },
+    );
+    scen?.addEventListener(
+      "pointerup",
+      (e) => {
+        if (!bred.matches) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.6) bladdra(dx < 0 ? 1 : -1);
+      },
+      { passive: true },
+    );
+
+    stall();
+  }
+</script>

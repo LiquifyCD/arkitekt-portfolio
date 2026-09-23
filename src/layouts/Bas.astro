@@ -7,23 +7,18 @@ import "../stilar/bas.css";
 
 import Topbar from "../komponenter/Topbar.astro";
 import Sidfot from "../komponenter/Sidfot.astro";
-import Snittlinje from "../komponenter/Snittlinje.astro";
 import { SAJT } from "../consts";
 import { intern } from "../lankar";
 
 interface Props {
   titel?: string;
   beskrivning?: string;
-  snittLage?: "rulla" | "manuell";
-  snittEtikett?: string;
   visaSidfot?: boolean;
 }
 
 const {
   titel,
   beskrivning = SAJT.beskrivning,
-  snittLage = "rulla",
-  snittEtikett = "",
   visaSidfot = true,
 } = Astro.props;
 
@@ -44,13 +39,12 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={beskrivning} />
     <meta property="og:locale" content="sv_SE" />
     <meta property="og:url" content={kanonisk} />
-    <meta name="theme-color" content="#e6e7e2" />
+    <meta name="theme-color" content="#f3efe7" />
     <link rel="icon" href={intern("/favicon.svg")} type="image/svg+xml" />
   </head>
   <body>
     <a class="hoppa" href="#innehall">Hoppa till innehållet</a>
     <Topbar />
-    <Snittlinje lage={snittLage} etikett={snittEtikett} />
     <main id="innehall">
       <slot />
     </main>

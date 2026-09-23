@@ -28,7 +28,7 @@ Skapa en fil i `src/innehall/projekt/<slug>.md`. Filnamnet blir adressen:
 ---
 titel: Kajhuset
 ar: 2024
-kategori: bostad # nyckel ur KATEGORIER i src/consts.ts
+kategori: bostad # bostad | renovering | stadsbyggnad | publika-byggnader
 plats: Frihamnen, Göteborg
 status: pågående # byggt | ej byggt | tävling | pågående
 roll: Handläggande arkitekt
@@ -97,17 +97,24 @@ påhittade. Bygg utan flaggan för skarp publicering.
 
 Tokens finns i `src/stilar/tokens.css`.
 
-- **Papper** `#E6E7E2` — ritfilm, inte gräddpapper
-- **Grafit** `#191C1E`, **poché** `#0A0B0C` — det som är kapat fylls solitt
-- **Blåkopia** `#22467A` — bara snittlinjen och fokusmarkering, aldrig dekor
-- **Typsnitt** — Familjen Grotesk (rubriker), Newsreader (brödtext),
-  Spline Sans Mono (namnrutan: mått, bildtexter, etiketter). Alla self-hostade
-  via fontsource, inga anrop till Googles CDN.
+- **Papper** `#F3EFE7` och **grafit** `#1E1D1B`: varm, lugn grund
+- **Kategorifärgerna** i `KATEGORIER` (`src/consts.ts`) är sajtens enda starka
+  färger: en ruta i menyn, på korten och på `/projekt`
+- **Typsnitt**: Familjen Grotesk (rubriker), Newsreader (brödtext),
+  Spline Sans Mono (etiketter). Alla self-hostade via fontsource, inga anrop
+  till Googles CDN.
 
-Sajtens signaturelement är **snittlinjen** i vänstermarginalen: en hårfin linje
-med ett streckat segment och riktningspilar, som en snittmarkering på en
-ritning. Segmentet visar var i dokumentet du står och etiketten vad du tittar
-på — avsnitt på startsidan, uppslagsnummer i boken.
+Sajtens signatur är **menyn** (idén från liljewall.se): en panel från höger,
+och när Projekt öppnas läggs kategorierna ut bredvid. Pekar man på en kategori
+tonas resten av sidan i en svagare nyans av dess färg.
+
+## Skrivet av mig
+
+Texterna ligger i `src/innehall/texter/<slug>.md` med `titel`, `ar`, `slag`,
+`sammanfattning`, `ordning` och `uppslag` (samma uppslagstyper som projekten).
+De läses som en pappersbok på `/skrivet/<slug>`. Vilken text som ligger i boken
+på startsidan, och vilket projekt som visas under "Ta en extra kik!", styrs av
+`STARTSIDA` i `src/consts.ts`.
 
 ## Boken
 

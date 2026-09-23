@@ -12,27 +12,39 @@ interface Props {
 const { projekt, laddning = "lazy" } = Astro.props;
 const d = projekt.data;
 const omslag = bild(d.omslag);
+const kategori = KATEGORIER[d.kategori];
+// Som på liljewall.se: korten byter till projektets nästa bild när man pekar på dem.
+const vaxla = d.uppslag.map((u) => u.bild).find((b) => b && b !== d.omslag);
 ---
 
-<article
-  class="kort"
-  data-kategori={d.kategori}
-  data-ar={d.ar}
-  data-ordning={d.ordning}
-  data-titel={d.titel}
->
+<article class="kort" style={`--k: ${kategori.farg}`}>
   <a class="kort__lank" href={intern(`/projekt/${projekt.id}`)}>
     <span class="kort__bild">
       <Image
         src={omslag}
-        alt={`${d.titel}, ${KATEGORIER[d.kategori].toLowerCase()} i ${d.plats}`}
+        alt={`${d.titel}, ${kategori.namn.toLowerCase()} i ${d.plats}`}
         widths={[420, 760, 1200]}
         sizes="(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 30vw"
         loading={laddning}
       />
+      {
+        vaxla && (
+          <Image
+            class="kort__vaxla"
+            src={bild(vaxla)}
+            alt=""
+            widths={[420, 760, 1200]}
+            sizes="(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 30vw"
+            loading="lazy"
+          />
+        )
+      }
     </span>
     <span class="kort__rad">
-      <span class="tb kort__kategori">{KATEGORIER[d.kategori]}</span>
+      <span class="tb kort__kategori">
+        <span class="kort__ruta" aria-hidden="true"></span>
+        {kategori.namn}
+      </span>
       <span class="tb kort__ar">{d.ar}</span>
     </span>
     <h3 class="kort__titel">{d.titel}</h3>
@@ -52,18 +64,40 @@ const omslag = bild(d.omslag);
 
   .kort__bild {
     display: block;
+    position: relative;
     overflow: hidden;
+    aspect-ratio: 4 / 3;
     background: var(--papper-djup);
   }
 
   .kort__bild :global(img) {
     width: 100%;
-    height: auto;
-    transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    height: 100%;
+    object-fit: cover;
   }
 
-  .kort__lank:hover .kort__bild :global(img) {
-    transform: scale(1.022);
+  .kort__bild :global(.kort__vaxla) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 240ms ease;
+  }
+
+  .kort__lank:hover .kort__bild :global(.kort__vaxla),
+  .kort__lank:focus-visible .kort__bild :global(.kort__vaxla) {
+    opacity: 1;
+  }
+
+  .kort__kategori {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+
+  .kort__ruta {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--k);
   }
 
   .kort__rad {
