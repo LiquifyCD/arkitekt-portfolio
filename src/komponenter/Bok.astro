@@ -127,9 +127,13 @@ const antal = uppslag.length;
     transition-delay: 0s;
   }
 
+  /* Bilden får höjden som blir över när bildtexten har tagit sin plats. Annars
+     hänger bildtexten ned under sidans kant och ser avklippt ut mot linjen. */
   .bok[data-lage="bok"] .bok__scen :global(.uppslag img) {
-    height: 100%;
+    flex: 1 1 0;
+    min-height: 0;
     width: 100%;
+    height: auto;
     object-fit: contain;
     object-position: center;
     background: transparent;
@@ -138,6 +142,7 @@ const antal = uppslag.length;
   .bok[data-lage="bok"] .bok__scen :global(.ruta) {
     height: 100%;
     min-height: 0;
+    justify-content: flex-start;
   }
 
   .bok[data-lage="bok"] .bok__scen :global(figcaption) {

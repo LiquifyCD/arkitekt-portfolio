@@ -147,7 +147,8 @@ const kategorier = Object.entries(KATEGORIER)
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 0.6em 0;
+    min-height: 2.75rem;
+    padding: 0 0.25em;
   }
 
   .menyknapp__streck {
@@ -234,7 +235,8 @@ const kategorier = Object.entries(KATEGORIER)
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 0.6em 0;
+    min-height: 2.75rem;
+    padding: 0 0.25em;
   }
 
   .meny__lista {
@@ -242,7 +244,7 @@ const kategorier = Object.entries(KATEGORIER)
     margin: var(--rum-5) 0 var(--rum-5);
     padding: 0;
     display: grid;
-    gap: var(--rum-2);
+    gap: var(--rum-1);
   }
 
   .meny__post {
@@ -256,13 +258,14 @@ const kategorier = Object.entries(KATEGORIER)
     align-items: center;
     gap: 0.3em;
     font-family: var(--typ-display);
-    font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.75rem);
+    min-height: 2.75rem;
+    font-size: clamp(1.75rem, 1.45rem + 0.9vw, 2.25rem);
     font-weight: 500;
     letter-spacing: -0.03em;
     line-height: 1.12;
     text-align: right;
     text-decoration: none;
-    color: color-mix(in srgb, var(--grafit) 58%, transparent);
+    color: color-mix(in srgb, var(--grafit) 74%, transparent);
     transition: color 140ms ease;
   }
 
@@ -315,10 +318,11 @@ const kategorier = Object.entries(KATEGORIER)
     display: flex;
     align-items: center;
     gap: var(--rum-3);
-    padding: 0.7em 0;
+    min-height: 2.75rem;
+    padding: 0.55em 0;
     border-top: 1px solid var(--linje);
     font-family: var(--typ-display);
-    font-size: var(--t-l);
+    font-size: clamp(1.125rem, 1rem + 0.35vw, 1.3rem);
     letter-spacing: -0.015em;
     text-decoration: none;
   }

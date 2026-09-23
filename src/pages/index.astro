@@ -6,7 +6,7 @@ import Film from "../komponenter/Film.astro";
 import Bok from "../komponenter/Bok.astro";
 import Projektkort from "../komponenter/Projektkort.astro";
 import { bild } from "../bilder";
-import { KATEGORIER, MANIFEST, STARTSIDA } from "../consts";
+import { KATEGORIER, STARTSIDA } from "../consts";
 import { intern } from "../lankar";
 
 const projekt = (await getCollection("projekt")).sort((a, b) => a.data.ordning - b.data.ordning);
@@ -20,11 +20,7 @@ const kikKategori = KATEGORIER[kik.data.kategori];
 
 <Bas>
   <section class="sida hero" aria-label="Film">
-    <Film />
-  </section>
-
-  <section class="sida manifest" aria-label="Manifest">
-    <p class="manifest__text">{MANIFEST}</p>
+    <Film fyll />
   </section>
 
   <section class="projekt" aria-labelledby="rubrik-projekt">
@@ -45,7 +41,7 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     </div>
 
     <ul class="karusell" data-karusell>
-      <li class="karusell__post">
+      <li class="karusell__post karusell__post--stor">
         <a class="ommig" href={intern("/om-mig")}>
           <span class="ommig__bild">
             <Image
@@ -115,22 +111,20 @@ const kikKategori = KATEGORIER[kik.data.kategori];
 </Bas>
 
 <style>
+  /* Menyraden och filmen fyller tillsammans första skärmen. svh, inte vh, så
+     att mobilens adressfält inte skjuter ned filmens underkant. */
   .hero {
-    padding-top: var(--rum-5);
+    height: calc(100svh - var(--topbar-h));
+    min-height: 22rem;
+    padding-block: var(--rum-4);
   }
 
-  .manifest {
-    padding-block: var(--rum-7);
+  .hero :global(.film__notis) {
+    margin-top: var(--rum-2);
   }
 
-  .manifest__text {
-    font-family: var(--typ-display);
-    font-size: var(--t-xl);
-    font-weight: 500;
-    letter-spacing: -0.028em;
-    line-height: 1.12;
-    max-width: 26ch;
-    text-wrap: balance;
+  .projekt {
+    margin-top: var(--rum-7);
   }
 
   h2 {
@@ -179,9 +173,11 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     margin: 0;
     padding: 0 var(--marg) var(--rum-3);
     display: flex;
+    align-items: flex-end;
     gap: var(--rum-4);
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    /* proximity, inte mandatory: annars rycker remsan när ett kort växer. */
+    scroll-snap-type: x proximity;
     scroll-padding-inline: var(--marg);
     scrollbar-width: none;
   }
@@ -190,15 +186,34 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     display: none;
   }
 
+  /* Ett kort i taget är större. Om mig från början; pekar man på ett annat
+     kort växer det och Om mig krymper tillbaka till samma storlek som resten. */
   .karusell__post {
-    flex: 0 0 clamp(15rem, 26vw, 22rem);
+    --liten: clamp(14rem, 21vw, 19rem);
+    --stor: clamp(18rem, 31vw, 28rem);
+    flex: 0 0 var(--liten);
     scroll-snap-align: start;
+    transition: flex-basis 420ms cubic-bezier(0.22, 0.7, 0.2, 1);
+  }
+
+  .karusell__post--stor {
+    flex-basis: var(--stor);
+  }
+
+  @media (hover: hover) {
+    .karusell:has(.karusell__post:not(.karusell__post--slut):is(:hover, :focus-within))
+      .karusell__post--stor {
+      flex-basis: var(--liten);
+    }
+
+    .karusell .karusell__post:not(.karusell__post--slut):is(:hover, :focus-within) {
+      flex-basis: var(--stor);
+    }
   }
 
   .ommig {
     display: flex;
     flex-direction: column;
-    height: 100%;
     text-decoration: none;
     background: var(--poche);
     color: var(--norrljus);
@@ -233,7 +248,7 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     font-size: var(--t-xl);
     font-weight: 500;
     letter-spacing: -0.03em;
-    line-height: 1;
+    line-height: 1.12;
   }
 
   .ommig .tb {
@@ -368,20 +383,17 @@ const kikKategori = KATEGORIER[kik.data.kategori];
 
   @media (max-width: 860px) {
     .hero {
-      padding-top: var(--rum-4);
       padding-inline: 0;
+      padding-block: 0 var(--rum-3);
     }
 
     .hero :global(.film__notis) {
       padding-inline: var(--marg);
     }
 
-    .manifest {
-      padding-block: var(--rum-6);
-    }
-
     .karusell__post {
-      flex-basis: 78vw;
+      --liten: 66vw;
+      --stor: 80vw;
     }
 
     .karusell__post--slut {

@@ -38,8 +38,8 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
                 src={bild(post.data.bild)}
                 alt={post.data.bildtext}
                 widths={[380, 700, 1200]}
-                sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 30vw"
-                loading={i < 4 ? "eager" : "lazy"}
+                sizes="(max-width: 700px) 48vw, (max-width: 1100px) 32vw, 24vw"
+                loading={i < 8 ? "eager" : "lazy"}
               />
               <span class="post__text">
                 <span class="tb post__bildtext">{post.data.bildtext}</span>
@@ -86,54 +86,83 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
     font-variation-settings: "opsz" 24;
   }
 
+  /* Jämnt rutnät av kvadrater, som skissens galleriruta: bilderna beskärs till
+     samma format så att raderna står raka. Hela bilden visas i lyftrutan. */
   .rutnat {
     list-style: none;
     margin: 0;
     padding: 0;
-    columns: 3;
-    column-gap: var(--rum-5);
-  }
-
-  .post {
-    break-inside: avoid;
-    margin-bottom: var(--rum-5);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--rum-2);
   }
 
   .post__knapp {
+    position: relative;
     display: block;
     width: 100%;
+    aspect-ratio: 1;
     padding: 0;
+    overflow: hidden;
     text-align: left;
+    background: var(--papper-djup);
   }
 
   .post__knapp :global(img) {
     width: 100%;
-    height: auto;
-    background: var(--papper-djup);
-    transition: opacity 180ms ease;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 420ms cubic-bezier(0.22, 0.7, 0.2, 1);
   }
 
-  .post__knapp:hover :global(img) {
-    opacity: 0.88;
+  .post__knapp:hover :global(img),
+  .post__knapp:focus-visible :global(img) {
+    transform: scale(1.04);
+  }
+
+  .post__knapp:focus-visible {
+    outline-offset: -3px;
   }
 
   .post__text {
-    display: block;
-    padding-top: var(--rum-3);
-    margin-top: var(--rum-3);
-    border-top: 1px solid var(--linje);
+    position: absolute;
+    inset: auto 0 0;
+    padding: var(--rum-5) var(--rum-3) var(--rum-3);
+    background: linear-gradient(to top, color-mix(in srgb, var(--poche) 82%, transparent), transparent);
+    color: var(--norrljus);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 200ms ease,
+      transform 260ms cubic-bezier(0.22, 0.7, 0.2, 1);
+  }
+
+  .post__knapp:hover .post__text,
+  .post__knapp:focus-visible .post__text {
+    opacity: 1;
+    transform: none;
   }
 
   .post__bildtext {
     display: block;
     text-transform: none;
     letter-spacing: 0.02em;
-    color: var(--grafit);
+    line-height: 1.35;
+    color: inherit;
   }
 
   .post__fakta {
     display: block;
     margin-top: 0.3em;
+    color: color-mix(in srgb, var(--norrljus) 78%, transparent);
+  }
+
+  /* Pekskärmar har ingen hovring: där visas bildtexten inte alls i rutan,
+     den finns i lyftrutan. */
+  @media (hover: none) {
+    .post__text {
+      display: none;
+    }
   }
 
   .lyft {
@@ -182,13 +211,14 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
 
   @media (max-width: 1100px) {
     .rutnat {
-      columns: 2;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 700px) {
     .rutnat {
-      columns: 1;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--rum-1);
     }
   }
 </style>
