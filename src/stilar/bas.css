@@ -9,7 +9,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Sidfoten står alltid längst ned, även på korta sidor. */
 body {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   background: var(--papper);
   color: var(--grafit);
@@ -97,6 +101,10 @@ hr {
   text-transform: uppercase;
   color: var(--krita);
   line-height: 1.5;
+}
+
+body > main {
+  flex: 1 0 auto;
 }
 
 .sida {
