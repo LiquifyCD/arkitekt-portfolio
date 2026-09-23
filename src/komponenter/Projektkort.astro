@@ -102,8 +102,9 @@ const vaxla = d.uppslag.map((u) => u.bild).find((b) => b && b !== d.omslag);
 
   .kort__rad {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: var(--rum-3);
+    gap: var(--rum-1) var(--rum-3);
     padding-top: var(--rum-3);
     margin-top: var(--rum-3);
     border-top: 1px solid var(--linje);

@@ -44,9 +44,9 @@ export const NAV = [
 // Färgen är kategorins egen: en ruta i menyn och på korten, och en svagare
 // nyans som lägger sig över sidan när kategorin pekas ut i menyn.
 export const KATEGORIER = {
-  bostad: { namn: "Bostadsprojekt", farg: "#c8623f" },
-  renovering: { namn: "Renoveringsprojekt", farg: "#bf9127" },
-  stadsbyggnad: { namn: "Stadsbyggnadsprojekt", farg: "#56875a" },
+  bostad: { namn: "Bostads\u00adprojekt", farg: "#c8623f" },
+  renovering: { namn: "Renoverings\u00adprojekt", farg: "#bf9127" },
+  stadsbyggnad: { namn: "Stadsbyggnads\u00adprojekt", farg: "#56875a" },
   "publika-byggnader": { namn: "Publika byggnader", farg: "#4a74ac" },
 } as const;
 

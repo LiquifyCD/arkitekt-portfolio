@@ -24,57 +24,44 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     <Film />
   </section>
 
-  <section class="projekt" aria-labelledby="rubrik-projekt">
-    <div class="sida rubrikrad">
-      <h2 id="rubrik-projekt">Projekt!</h2>
-      <div class="pilar" data-pilar hidden>
-        <button type="button" class="pil" data-pil="-1" aria-label="Föregående">
-          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-            <path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2"></path>
-          </svg>
-        </button>
-        <button type="button" class="pil" data-pil="1" aria-label="Nästa">
-          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-            <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"></path>
-          </svg>
-        </button>
-      </div>
+  <section class="sida sida--bred projekt" aria-labelledby="rubrik-projekt">
+    <div class="projekt__rutnat">
+      <h2 class="projekt__rubrik" id="rubrik-projekt">Projekt!</h2>
+      <ul class="rad" role="list" data-rad>
+        <li class="rad__post rad__post--ommig" data-stor>
+          <a class="ommig" href={intern("/om-mig")}>
+            <span class="ommig__bild">
+              <Image
+                src={bild("portratt.jpg")}
+                alt=""
+                widths={[360, 640]}
+                sizes="(max-width: 700px) 46vw, (max-width: 1100px) 48vw, 22vw"
+              />
+            </span>
+            <span class="ommig__text">
+              <span class="ommig__rubrik">Om mig</span>
+              <span class="tb">Vem som ritar, och varför</span>
+            </span>
+          </a>
+        </li>
+        {
+          projekt.map((p) => (
+            <li class="rad__post">
+              <Projektkort projekt={p} />
+            </li>
+          ))
+        }
+        <li class="rad__post rad__post--alla">
+          <a class="alla" href={intern("/projekt")}>
+            Alla projekt
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <path d="M5 12h13m0 0-5-5m5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"
+              ></path>
+            </svg>
+          </a>
+        </li>
+      </ul>
     </div>
-
-    <ul class="karusell" data-karusell>
-      <li class="karusell__post" data-stor>
-        <a class="ommig" href={intern("/om-mig")}>
-          <span class="ommig__bild">
-            <Image
-              src={bild("portratt.jpg")}
-              alt=""
-              widths={[360, 640]}
-              sizes="(max-width: 860px) 80vw, 28rem"
-            />
-          </span>
-          <span class="ommig__text">
-            <span class="ommig__rubrik">Om mig</span>
-            <span class="tb">Vem som ritar, och varför</span>
-          </span>
-        </a>
-      </li>
-      {
-        projekt.map((p) => (
-          <li class="karusell__post">
-            <Projektkort projekt={p} />
-          </li>
-        ))
-      }
-      <li class="karusell__post karusell__post--slut">
-        <a class="alla" href={intern("/projekt")}>
-          Alla projekt
-          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-            <path d="M5 12h13m0 0-5-5m5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"
-            ></path>
-          </svg>
-        </a>
-      </li>
-    </ul>
   </section>
 
   <section class="sida ordet" aria-labelledby="rubrik-ordet">
@@ -123,13 +110,17 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     padding-block: var(--luft);
   }
 
+  /* Bildtexten under filmen räknas inte med när filmen centreras. */
+  .hero :global(.film__notis) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+  }
+
   .hero :global(.film) {
     width: min(100%, (100svh - var(--topbar-h) - 2 * var(--luft) - var(--notis)) * 16 / 9);
     margin-inline: auto;
-  }
-
-  .projekt {
-    margin-top: var(--rum-7);
   }
 
   h2 {
@@ -138,87 +129,69 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     letter-spacing: -0.03em;
   }
 
-  /* Projekt! — skissens remsa: Om mig först, sedan projekten, pil vidare. */
-  .rubrikrad {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: var(--rum-4);
-    margin-bottom: var(--rum-5);
-  }
-
-  .pilar {
-    display: flex;
-    gap: var(--rum-2);
-  }
-
-  .pil {
+  /* Projekt! har en egen skärmhöjd. Allt ryms i en rad utan rullning:
+     Om mig är högst och står först, rubriken ligger i luften ovanför de
+     första projekten, och korten står på samma baslinje. */
+  .projekt {
+    min-height: calc(100svh - var(--topbar-h));
     display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border: 1px solid var(--linje-stark);
-    transition:
-      background-color 140ms ease,
-      color 140ms ease;
+    align-content: center;
+    padding-block: var(--rum-6);
   }
 
-  .pil:hover:not(:disabled) {
-    background: var(--poche);
-    color: var(--norrljus);
+  .projekt__rutnat {
+    --kolumner: minmax(0, 1.5fr) repeat(6, minmax(0, 1fr));
+    --ommig-rader: 1 / span 2;
+    display: grid;
+    grid-template-columns: var(--kolumner);
+    /* 1fr: raden fylls av det Om mig sticker upp över korten, så att
+       rubriken hamnar precis ovanför dem. */
+    grid-template-rows: 1fr auto;
+    column-gap: var(--rum-3);
+    row-gap: var(--rum-5);
   }
 
-  .pil:disabled {
-    opacity: 0.28;
-    cursor: default;
-  }
-
-  .karusell {
-    --liten: clamp(14rem, 21vw, 19rem);
-    --stor: clamp(18rem, 31vw, 28rem);
+  .rad {
+    display: contents;
     list-style: none;
-    margin: 0;
-    /* Luft upptill så att fokusramen på det stora kortet inte klipps. */
-    padding: var(--rum-2) var(--marg) var(--rum-3);
-    display: flex;
-    align-items: flex-end;
-    gap: var(--rum-4);
-    overflow-x: auto;
-    /* proximity, inte mandatory: annars rycker remsan när ett kort växer. */
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: var(--marg);
-    scrollbar-width: none;
   }
 
-  .karusell::-webkit-scrollbar {
-    display: none;
+  .projekt__rubrik {
+    grid-column: var(--rubrik-kol, 2 / -1);
+    grid-row: 1;
+    align-self: end;
+    line-height: 1.05;
   }
 
-  /* Ett kort i taget är större: Om mig från början, sedan det kort man pekar
-     på. Skriptet flyttar data-stor och håller radens höjd fast, så att ytan
-     under inte hoppar medan korten byter storlek. */
-  .karusell__post {
-    flex: 0 0 var(--liten);
-    scroll-snap-align: start;
-    transition: flex-basis 240ms cubic-bezier(0.22, 0.7, 0.2, 1);
+  .rad__post--ommig {
+    grid-column: var(--ommig-kol, 1);
+    grid-row: var(--ommig-rader);
+    align-self: end;
   }
 
-  .karusell__post[data-stor] {
-    flex-basis: var(--stor);
+  .rad__post {
+    transform-origin: 50% 100%;
+    transition: transform 200ms cubic-bezier(0.22, 0.7, 0.2, 1);
   }
 
-  /* Skapas av skriptet och saknar därför Astros scope-attribut. */
-  .karusell :global(.karusell__matt) {
-    position: absolute;
-    width: var(--stor);
-    visibility: hidden;
-    pointer-events: none;
+  .rad__post--ommig {
+    transform-origin: 0 100%;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .karusell__post {
-      transition: none;
-    }
+  /* Pekar man på ett projekt växer det och Om mig krymper. Bara transform,
+     så att inget annat på sidan flyttar sig. */
+  .rad__post[data-stor]:not(.rad__post--ommig) {
+    transform: scale(1.08);
+    z-index: 1;
+  }
+
+  .rad:has(.rad__post[data-stor]:not(.rad__post--ommig)) .rad__post--ommig {
+    transform: scale(0.94);
+  }
+
+  /* Porträttformat i raden: smala kort får mer bild. */
+  .projekt :global(.kort__bild) {
+    aspect-ratio: 4 / 5;
   }
 
   .ommig {
@@ -231,7 +204,7 @@ const kikKategori = KATEGORIER[kik.data.kategori];
 
   .ommig__bild {
     display: block;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 4 / 5;
     overflow: hidden;
   }
 
@@ -265,25 +238,77 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     color: color-mix(in srgb, var(--norrljus) 70%, transparent);
   }
 
-  .karusell__post--slut {
-    flex-basis: clamp(10rem, 16vw, 14rem);
+  /* Alla projekt: lika hög som projektkorten, eftersom den sträcks över
+     samma rad som de. */
+  .rad__post--alla {
+    display: flex;
   }
 
   .alla {
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    aspect-ratio: 3 / 4;
     padding: var(--rum-4);
     border: 1px solid var(--linje-stark);
     font-family: var(--typ-display);
     font-size: var(--t-l);
+    line-height: 1.15;
     text-decoration: none;
     transition: background-color 160ms ease;
   }
 
   .alla:hover {
     background: var(--papper-djup);
+  }
+
+  /* Platta: Om mig två kolumner bred bredvid rubriken och två projekt,
+     resten i en full rad under — rutnätet går jämnt ut. */
+  @media (max-width: 1100px) {
+    .projekt__rutnat {
+      --kolumner: repeat(4, minmax(0, 1fr));
+      --ommig-kol: 1 / span 2;
+      --rubrik-kol: 3 / -1;
+    }
+  }
+
+  /* Telefon: två kolumner. Om mig sträcks bredvid rubriken och första
+     projektet; alla rader under är lika höga, så Alla projekt blir lika
+     hög som korten även när den står ensam sist. */
+  @media (max-width: 700px) {
+    .projekt__rutnat {
+      --kolumner: repeat(2, minmax(0, 1fr));
+      --ommig-kol: 1;
+      --rubrik-kol: 2;
+      grid-template-rows: auto;
+      grid-auto-rows: 1fr;
+    }
+
+    .rad__post--ommig {
+      align-self: stretch;
+      display: flex;
+    }
+
+    .ommig {
+      flex: 1;
+    }
+
+    .ommig__bild {
+      position: relative;
+      flex: 1;
+      aspect-ratio: auto;
+      min-height: 8rem;
+    }
+
+    .ommig__bild :global(img) {
+      position: absolute;
+      inset: 0;
+    }
+
+    .ommig__text,
+    .alla {
+      padding: var(--rum-3);
+    }
   }
 
   /* Ordets makt: boken, och beskrivningen under den. */
@@ -398,23 +423,9 @@ const kikKategori = KATEGORIER[kik.data.kategori];
   }
 
   @media (max-width: 860px) {
-    /* Stående skärm: filmen i full bredd överst, ingen tvingad höjd. */
-    .hero {
-      min-height: 0;
-      padding-block: var(--rum-4) 0;
-    }
-
+    /* Stående skärm: filmen i full bredd, mitt i sin egen skärmhöjd. */
     .hero :global(.film) {
       width: 100%;
-    }
-
-    .karusell {
-      --liten: 66vw;
-      --stor: 80vw;
-    }
-
-    .karusell__post--slut {
-      flex-basis: 44vw;
     }
 
     .kik__kort {
@@ -429,83 +440,31 @@ const kikKategori = KATEGORIER[kik.data.kategori];
 </style>
 
 <script>
-  const karusell = document.querySelector<HTMLElement>("[data-karusell]");
-  const pilar = document.querySelector<HTMLElement>("[data-pilar]");
+  // Ett kort i taget är förstorat. Skriptet flyttar data-stor i stället för
+  // ren :hover, så att glappen mellan korten inte räknas som att pekaren
+  // lämnat raden — annars fladdrar Om mig tillbaka i varje mellanrum.
+  const rutnat = document.querySelector<HTMLElement>(".projekt__rutnat");
 
-  if (karusell && pilar) {
-    const knappar = Array.from(pilar.querySelectorAll<HTMLButtonElement>("[data-pil]"));
-    const steg = () => {
-      const forsta = karusell.querySelector<HTMLElement>(".karusell__post");
-      const glapp = parseFloat(getComputedStyle(karusell).columnGap) || 0;
-      return (forsta?.offsetWidth ?? 300) + glapp;
-    };
-
-    const uppdatera = () => {
-      const max = karusell.scrollWidth - karusell.clientWidth - 2;
-      pilar.hidden = max <= 0;
-      knappar[0].disabled = karusell.scrollLeft <= 2;
-      knappar[1].disabled = karusell.scrollLeft >= max;
-    };
-
-    for (const knapp of knappar) {
-      knapp.addEventListener("click", () => {
-        const lugn = matchMedia("(prefers-reduced-motion: reduce)").matches;
-        karusell.scrollBy({
-          left: Number(knapp.dataset.pil) * steg(),
-          behavior: lugn ? "auto" : "smooth",
-        });
-      });
-    }
-
-    karusell.addEventListener("scroll", uppdatera, { passive: true });
-    addEventListener("resize", uppdatera);
-    uppdatera();
-  }
-
-  if (karusell && matchMedia("(hover: hover)").matches) {
-    const poster = Array.from(
-      karusell.querySelectorAll<HTMLElement>(".karusell__post:not(.karusell__post--slut)"),
-    );
+  if (rutnat && matchMedia("(hover: hover)").matches) {
+    const valbara = ".rad__post:not(.rad__post--alla)";
+    const poster = Array.from(rutnat.querySelectorAll<HTMLElement>(valbara));
     const standard = poster[0];
 
     const gorStor = (post: HTMLElement | null) => {
       if (!post || post.hasAttribute("data-stor")) return;
       for (const p of poster) p.toggleAttribute("data-stor", p === post);
     };
+    const narmast = (e: Event) => (e.target as Element).closest<HTMLElement>(valbara);
 
-    // Radens höjd låses till den högsta den kan bli, oavsett vilket kort som
-    // är stort. Bilderna är 4:3, så höjden är textdelen plus 3/4 av --stor.
-    const matt = document.createElement("li");
-    matt.className = "karusell__matt";
-    matt.setAttribute("aria-hidden", "true");
-    karusell.append(matt);
-
-    const lasHojd = () => {
-      const stor = matt.offsetWidth;
-      const text = Math.max(...poster.map((p) => p.offsetHeight - p.offsetWidth * 0.75));
-      const stil = getComputedStyle(karusell);
-      const kant = parseFloat(stil.paddingTop) + parseFloat(stil.paddingBottom);
-      karusell.style.minHeight = `${Math.ceil(text + stor * 0.75 + kant)}px`;
-    };
-
-    // Pekaren mellan två kort räknas inte som att lämna remsan; annars
-    // växer Om mig tillbaka i varje glapp och korten fladdrar.
-    karusell.addEventListener("pointerover", (e) => {
-      if (e.pointerType === "touch") return;
-      gorStor((e.target as Element).closest<HTMLElement>(".karusell__post:not(.karusell__post--slut)"));
+    rutnat.addEventListener("pointerover", (e) => {
+      if (e.pointerType !== "touch") gorStor(narmast(e));
     });
-    karusell.addEventListener("pointerleave", () => {
-      if (!karusell.contains(document.activeElement)) gorStor(standard);
+    rutnat.addEventListener("pointerleave", () => {
+      if (!rutnat.contains(document.activeElement)) gorStor(standard);
     });
-    karusell.addEventListener("focusin", (e) => {
-      gorStor((e.target as Element).closest<HTMLElement>(".karusell__post:not(.karusell__post--slut)"));
+    rutnat.addEventListener("focusin", (e) => gorStor(narmast(e)));
+    rutnat.addEventListener("focusout", (e) => {
+      if (!rutnat.contains(e.relatedTarget as Node | null)) gorStor(standard);
     });
-    karusell.addEventListener("focusout", (e) => {
-      if (!karusell.contains(e.relatedTarget as Node | null)) gorStor(standard);
-    });
-
-    addEventListener("load", lasHojd);
-    addEventListener("resize", lasHojd);
-    lasHojd();
   }
 </script>
