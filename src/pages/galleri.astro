@@ -11,16 +11,18 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
   titel="Fotogalleri"
   beskrivning="Arbetsmodeller i papp, gips och trä, från skiss till färdig handling."
 >
-  <div class="sida sida--bred topp">
-    <p class="tb">Fotogalleri</p>
-    <h1>Modeller</h1>
-    <p class="topp__ingress text-matt">
-      Varje skede får en modell. De är arbetsredskap, inte presentationer — därför
-      är de gjorda i papp och kapspill och därför ser de ut som de gör.
-    </p>
-  </div>
+  <div class="galleri">
+    <header class="topp">
+      <div>
+        <p class="tb">Fotogalleri</p>
+        <h1>Modeller</h1>
+      </div>
+      <p class="topp__ingress text-matt">
+        Varje skede får en modell. De är arbetsredskap, inte presentationer — därför
+        är de gjorda i papp och kapspill och därför ser de ut som de gör.
+      </p>
+    </header>
 
-  <div class="sida sida--bred">
     <ul class="rutnat">
       {
         poster.map((post, i) => (
@@ -39,7 +41,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
                 src={bild(post.data.bild)}
                 alt={post.data.bildtext}
                 widths={[380, 700, 1200]}
-                sizes="(max-width: 700px) 48vw, (max-width: 1100px) 32vw, 24vw"
+                sizes="(max-width: 700px) 48vw, (max-width: 1100px) 33vw, 25vw"
                 loading={i < 8 ? "eager" : "lazy"}
               />
               <span class="post__text" aria-hidden="true">
@@ -69,40 +71,68 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
 </Bas>
 
 <style>
+  /* Menyraden och galleriet fyller tillsammans första skärmen; sidfoten
+     kommer först därefter. Galleriet går nästan kant i kant. */
+  .galleri {
+    --kant: clamp(0.75rem, 0.35rem + 1.3vw, 1.75rem);
+    min-height: calc(100svh - var(--topbar-h));
+    display: flex;
+    flex-direction: column;
+    gap: var(--rum-5);
+    padding: var(--rum-5) var(--kant);
+  }
+
+  /* Sidfoten följer direkt efter första skärmen, utan sin vanliga luft. */
+  :global(main:has(.galleri) + .sidfot) {
+    margin-top: 0;
+  }
+
   .topp {
-    padding-top: var(--rum-7);
-    margin-bottom: var(--rum-7);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--rum-3) var(--rum-6);
   }
 
   h1 {
     font-size: var(--t-2xl);
     font-weight: 600;
     letter-spacing: -0.04em;
-    margin: var(--rum-4) 0 var(--rum-4);
+    line-height: 1.1;
+    margin: var(--rum-2) 0 0;
   }
 
   .topp__ingress {
+    margin: 0;
     font-size: var(--t-l);
     line-height: 1.45;
     font-variation-settings: "opsz" 24;
   }
 
-  /* Jämnt rutnät av kvadrater, som skissens galleriruta: bilderna beskärs till
-     samma format så att raderna står raka. Hela bilden visas i lyftrutan. */
+  /* Jämnt rutnät som skissens galleriruta. Raderna sträcks så att rutnätet
+     fyller resten av skärmen; bilderna beskärs till rutan och syns hela i
+     lyftrutan. */
   .rutnat {
+    flex: 1;
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(11rem, auto);
+    align-content: stretch;
     gap: var(--rum-5);
+  }
+
+  .post {
+    display: flex;
   }
 
   .post__knapp {
     position: relative;
     display: block;
-    width: 100%;
-    aspect-ratio: 1;
+    flex: 1;
     padding: 0;
     overflow: hidden;
     text-align: left;
@@ -110,6 +140,8 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
   }
 
   .post__knapp :global(img) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -219,7 +251,12 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
   @media (max-width: 700px) {
     .rutnat {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: minmax(6.5rem, auto);
       gap: var(--rum-3);
+    }
+
+    .topp__ingress {
+      font-size: var(--t-m);
     }
   }
 </style>
