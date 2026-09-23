@@ -11,7 +11,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
   titel="Fotogalleri"
   beskrivning="Arbetsmodeller i papp, gips och trä, från skiss till färdig handling."
 >
-  <div class="sida topp">
+  <div class="sida sida--bred topp">
     <p class="tb">Fotogalleri</p>
     <h1>Modeller</h1>
     <p class="topp__ingress text-matt">
@@ -20,7 +20,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
     </p>
   </div>
 
-  <div class="sida">
+  <div class="sida sida--bred">
     <ul class="rutnat">
       {
         poster.map((post, i) => (
@@ -28,6 +28,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
             <button
               type="button"
               class="post__knapp"
+              aria-haspopup="dialog"
               data-lyft
               data-bildtext={post.data.bildtext}
               data-fakta={[post.data.material, post.data.skala, post.data.ar]
@@ -41,7 +42,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
                 sizes="(max-width: 700px) 48vw, (max-width: 1100px) 32vw, 24vw"
                 loading={i < 8 ? "eager" : "lazy"}
               />
-              <span class="post__text">
+              <span class="post__text" aria-hidden="true">
                 <span class="tb post__bildtext">{post.data.bildtext}</span>
                 <span class="tb post__fakta">
                   {[post.data.material, post.data.skala].filter(Boolean).join(" — ")}
@@ -54,7 +55,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
     </ul>
   </div>
 
-  <dialog class="lyft" data-lyftruta>
+  <dialog class="lyft" data-lyftruta aria-label="Förstorad bild">
     <form method="dialog" class="lyft__stang">
       <button type="submit" aria-label="Stäng">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">

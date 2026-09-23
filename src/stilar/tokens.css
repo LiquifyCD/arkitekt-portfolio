@@ -47,6 +47,9 @@
   /* Mått */
   --marg: clamp(1rem, 1rem + 4.5vw, 7rem);
   --matt: 88rem;
+  /* Bredare spalt för bildytor: filmen och galleriet. */
+  --matt-bred: 116rem;
+  --marg-bred: clamp(1rem, 0.4rem + 2.6vw, 3rem);
   --matt-text: 34rem;
   --topbar-h: 4.25rem;
 }

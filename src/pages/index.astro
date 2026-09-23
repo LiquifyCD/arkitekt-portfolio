@@ -6,7 +6,7 @@ import Film from "../komponenter/Film.astro";
 import Bok from "../komponenter/Bok.astro";
 import Projektkort from "../komponenter/Projektkort.astro";
 import { bild } from "../bilder";
-import { KATEGORIER, STARTSIDA } from "../consts";
+import { ARKITEKT, KATEGORIER, STARTSIDA } from "../consts";
 import { intern } from "../lankar";
 
 const projekt = (await getCollection("projekt")).sort((a, b) => a.data.ordning - b.data.ordning);
@@ -19,8 +19,9 @@ const kikKategori = KATEGORIER[kik.data.kategori];
 ---
 
 <Bas>
-  <section class="sida hero" aria-label="Film">
-    <Film fyll />
+  <h1 class="dolj-visuellt">{ARKITEKT.namn}, {ARKITEKT.titel.toLowerCase()}</h1>
+  <section class="sida sida--bred hero" aria-label="Film">
+    <Film />
   </section>
 
   <section class="projekt" aria-labelledby="rubrik-projekt">
@@ -41,14 +42,14 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     </div>
 
     <ul class="karusell" data-karusell>
-      <li class="karusell__post karusell__post--stor">
+      <li class="karusell__post" data-stor>
         <a class="ommig" href={intern("/om-mig")}>
           <span class="ommig__bild">
             <Image
               src={bild("portratt.jpg")}
               alt=""
               widths={[360, 640]}
-              sizes="(max-width: 700px) 78vw, 22rem"
+              sizes="(max-width: 860px) 80vw, 28rem"
             />
           </span>
           <span class="ommig__text">
@@ -111,16 +112,20 @@ const kikKategori = KATEGORIER[kik.data.kategori];
 </Bas>
 
 <style>
-  /* Menyraden och filmen fyller tillsammans första skärmen. svh, inte vh, så
-     att mobilens adressfält inte skjuter ned filmens underkant. */
+  /* Menyraden och filmen delar första skärmen. Filmen står kvar i 16:9 med
+     luft runt om: bred på datorn, men aldrig högre än att den ryms. */
   .hero {
-    height: calc(100svh - var(--topbar-h));
-    min-height: 22rem;
-    padding-block: var(--rum-4);
+    --luft: clamp(1.5rem, 5svh, 4rem);
+    --notis: 2.25rem;
+    min-height: calc(100svh - var(--topbar-h));
+    display: grid;
+    align-content: center;
+    padding-block: var(--luft);
   }
 
-  .hero :global(.film__notis) {
-    margin-top: var(--rum-2);
+  .hero :global(.film) {
+    width: min(100%, (100svh - var(--topbar-h) - 2 * var(--luft) - var(--notis)) * 16 / 9);
+    margin-inline: auto;
   }
 
   .projekt {
@@ -169,9 +174,12 @@ const kikKategori = KATEGORIER[kik.data.kategori];
   }
 
   .karusell {
+    --liten: clamp(14rem, 21vw, 19rem);
+    --stor: clamp(18rem, 31vw, 28rem);
     list-style: none;
     margin: 0;
-    padding: 0 var(--marg) var(--rum-3);
+    /* Luft upptill så att fokusramen på det stora kortet inte klipps. */
+    padding: var(--rum-2) var(--marg) var(--rum-3);
     display: flex;
     align-items: flex-end;
     gap: var(--rum-4);
@@ -186,28 +194,30 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     display: none;
   }
 
-  /* Ett kort i taget är större. Om mig från början; pekar man på ett annat
-     kort växer det och Om mig krymper tillbaka till samma storlek som resten. */
+  /* Ett kort i taget är större: Om mig från början, sedan det kort man pekar
+     på. Skriptet flyttar data-stor och håller radens höjd fast, så att ytan
+     under inte hoppar medan korten byter storlek. */
   .karusell__post {
-    --liten: clamp(14rem, 21vw, 19rem);
-    --stor: clamp(18rem, 31vw, 28rem);
     flex: 0 0 var(--liten);
     scroll-snap-align: start;
-    transition: flex-basis 420ms cubic-bezier(0.22, 0.7, 0.2, 1);
+    transition: flex-basis 240ms cubic-bezier(0.22, 0.7, 0.2, 1);
   }
 
-  .karusell__post--stor {
+  .karusell__post[data-stor] {
     flex-basis: var(--stor);
   }
 
-  @media (hover: hover) {
-    .karusell:has(.karusell__post:not(.karusell__post--slut):is(:hover, :focus-within))
-      .karusell__post--stor {
-      flex-basis: var(--liten);
-    }
+  /* Skapas av skriptet och saknar därför Astros scope-attribut. */
+  .karusell :global(.karusell__matt) {
+    position: absolute;
+    width: var(--stor);
+    visibility: hidden;
+    pointer-events: none;
+  }
 
-    .karusell .karusell__post:not(.karusell__post--slut):is(:hover, :focus-within) {
-      flex-basis: var(--stor);
+  @media (prefers-reduced-motion: reduce) {
+    .karusell__post {
+      transition: none;
     }
   }
 
@@ -287,9 +297,15 @@ const kikKategori = KATEGORIER[kik.data.kategori];
   }
 
   .ordet__beskrivning {
-    max-width: var(--matt-text);
+    max-width: 40rem;
     margin: var(--rum-6) auto 0;
     text-align: center;
+  }
+
+  .ordet__beskrivning p:not(.tb) {
+    font-size: var(--t-l);
+    line-height: 1.5;
+    text-wrap: pretty;
   }
 
   .ordet__beskrivning .tb {
@@ -382,16 +398,17 @@ const kikKategori = KATEGORIER[kik.data.kategori];
   }
 
   @media (max-width: 860px) {
+    /* Stående skärm: filmen i full bredd överst, ingen tvingad höjd. */
     .hero {
-      padding-inline: 0;
-      padding-block: 0 var(--rum-3);
+      min-height: 0;
+      padding-block: var(--rum-4) 0;
     }
 
-    .hero :global(.film__notis) {
-      padding-inline: var(--marg);
+    .hero :global(.film) {
+      width: 100%;
     }
 
-    .karusell__post {
+    .karusell {
       --liten: 66vw;
       --stor: 80vw;
     }
@@ -443,5 +460,52 @@ const kikKategori = KATEGORIER[kik.data.kategori];
     karusell.addEventListener("scroll", uppdatera, { passive: true });
     addEventListener("resize", uppdatera);
     uppdatera();
+  }
+
+  if (karusell && matchMedia("(hover: hover)").matches) {
+    const poster = Array.from(
+      karusell.querySelectorAll<HTMLElement>(".karusell__post:not(.karusell__post--slut)"),
+    );
+    const standard = poster[0];
+
+    const gorStor = (post: HTMLElement | null) => {
+      if (!post || post.hasAttribute("data-stor")) return;
+      for (const p of poster) p.toggleAttribute("data-stor", p === post);
+    };
+
+    // Radens höjd låses till den högsta den kan bli, oavsett vilket kort som
+    // är stort. Bilderna är 4:3, så höjden är textdelen plus 3/4 av --stor.
+    const matt = document.createElement("li");
+    matt.className = "karusell__matt";
+    matt.setAttribute("aria-hidden", "true");
+    karusell.append(matt);
+
+    const lasHojd = () => {
+      const stor = matt.offsetWidth;
+      const text = Math.max(...poster.map((p) => p.offsetHeight - p.offsetWidth * 0.75));
+      const stil = getComputedStyle(karusell);
+      const kant = parseFloat(stil.paddingTop) + parseFloat(stil.paddingBottom);
+      karusell.style.minHeight = `${Math.ceil(text + stor * 0.75 + kant)}px`;
+    };
+
+    // Pekaren mellan två kort räknas inte som att lämna remsan; annars
+    // växer Om mig tillbaka i varje glapp och korten fladdrar.
+    karusell.addEventListener("pointerover", (e) => {
+      if (e.pointerType === "touch") return;
+      gorStor((e.target as Element).closest<HTMLElement>(".karusell__post:not(.karusell__post--slut)"));
+    });
+    karusell.addEventListener("pointerleave", () => {
+      if (!karusell.contains(document.activeElement)) gorStor(standard);
+    });
+    karusell.addEventListener("focusin", (e) => {
+      gorStor((e.target as Element).closest<HTMLElement>(".karusell__post:not(.karusell__post--slut)"));
+    });
+    karusell.addEventListener("focusout", (e) => {
+      if (!karusell.contains(e.relatedTarget as Node | null)) gorStor(standard);
+    });
+
+    addEventListener("load", lasHojd);
+    addEventListener("resize", lasHojd);
+    lasHojd();
   }
 </script>
