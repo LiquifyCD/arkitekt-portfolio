@@ -105,6 +105,11 @@ hr {
   padding-inline: var(--marg);
 }
 
+.sida--bred {
+  max-width: var(--matt-bred);
+  padding-inline: var(--marg-bred);
+}
+
 .text-matt {
   max-width: var(--matt-text);
 }
