@@ -1,12 +1,8 @@
 ---
 titel: Att bygga mindre
 ar: 2025
-kategori: i-form-av-ord
-plats: Arkitektur nr 4
-status: byggt
-roll: Text
-ordning: 7
-omslag: skiss-03.jpg
+slag: Essä, Arkitektur nr 4
+ordning: 2
 sammanfattning: >-
   En essä om varför nästan varje projekt vinner på att krympa, och varför det
   nästan aldrig händer.

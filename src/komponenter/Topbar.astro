@@ -1,29 +1,114 @@
 ---
-import { ARKITEKT, NAV } from "../consts";
+import { getCollection } from "astro:content";
+import { ARKITEKT, KATEGORIER, NAV } from "../consts";
 import { intern, utanBas } from "../lankar";
 
 const sokvag = utanBas(Astro.url.pathname);
 const aktiv = (href: string) => sokvag === href || sokvag.startsWith(href + "/");
+
+const projekt = await getCollection("projekt");
+const kategorier = Object.entries(KATEGORIER)
+  .map(([nyckel, k]) => ({
+    nyckel,
+    ...k,
+    antal: projekt.filter((p) => p.data.kategori === nyckel).length,
+  }))
+  .filter((k) => k.antal > 0);
 ---
 
 <header class="topbar">
   <a class="topbar__logga" href={intern("/")} aria-label={`${ARKITEKT.namn} — till startsidan`}>
     {ARKITEKT.namn}
   </a>
-  <nav class="topbar__flikar" aria-label="Huvudmeny">
-    {
-      NAV.map((post) => (
-        <a
-          href={intern(post.href)}
-          class:list={["flik", { "flik--aktiv": aktiv(post.href) }]}
-          aria-current={aktiv(post.href) ? "page" : undefined}
-        >
-          {post.text}
-        </a>
-      ))
-    }
-  </nav>
+  <button
+    type="button"
+    class="menyknapp"
+    data-meny-oppna
+    aria-haspopup="dialog"
+    aria-controls="meny"
+  >
+    Meny
+    <span class="menyknapp__streck" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
 </header>
+
+<dialog class="meny" id="meny" data-meny aria-label="Meny">
+  <div class="meny__ton" data-meny-ton aria-hidden="true"></div>
+
+  <nav class="meny__panel" aria-label="Huvudmeny">
+    <div class="meny__huvud">
+      <span class="tb">Meny</span>
+      <button type="button" class="meny__stang" data-meny-stang>
+        Stäng
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+        </svg>
+      </button>
+    </div>
+
+    <ul class="meny__lista">
+      {
+        NAV.map((post) =>
+          post.href === "/projekt" ? (
+            <li class="meny__post">
+              <button
+                type="button"
+                class:list={["meny__lank", { "meny__lank--aktiv": aktiv(post.href) }]}
+                data-projekt-knapp
+                aria-expanded="false"
+                aria-controls="meny-kategorier"
+              >
+                {post.text}
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                  <path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="1.6" />
+                </svg>
+              </button>
+              <div class="kategorier" id="meny-kategorier" data-kategorier hidden>
+                <p class="tb kategorier__etikett">Projekt</p>
+                <ul>
+                  {kategorier.map((k) => (
+                    <li>
+                      <a
+                        class="kategorier__lank"
+                        href={intern(`/projekt#${k.nyckel}`)}
+                        data-farg={k.farg}
+                        style={`--k: ${k.farg}`}
+                      >
+                        <span class="kategorier__ruta" aria-hidden="true" />
+                        <span class="kategorier__namn">{k.namn}</span>
+                        <span class="tb kategorier__antal">{k.antal}</span>
+                      </a>
+                    </li>
+                  ))}
+                  <li>
+                    <a class="kategorier__lank kategorier__lank--alla" href={intern("/projekt")}>
+                      <span class="kategorier__namn">Alla projekt</span>
+                      <span class="tb kategorier__antal">{projekt.length}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          ) : (
+            <li class="meny__post">
+              <a
+                href={intern(post.href)}
+                class:list={["meny__lank", { "meny__lank--aktiv": aktiv(post.href) }]}
+                aria-current={aktiv(post.href) ? "page" : undefined}
+              >
+                {post.text}
+              </a>
+            </li>
+          ),
+        )
+      }
+    </ul>
+
+    <p class="tb meny__fot">
+      <a href={`mailto:${ARKITEKT.epost}`}>{ARKITEKT.epost}</a>
+    </p>
+  </nav>
+</dialog>
 
 <style>
   .topbar {
@@ -33,85 +118,309 @@ const aktiv = (href: string) => sokvag === href || sokvag.startsWith(href + "/")
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--rum-5);
+    gap: var(--rum-4);
     height: var(--topbar-h);
     padding-inline: var(--marg);
-    background: var(--papper);
+    background: color-mix(in srgb, var(--papper) 92%, transparent);
+    backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--linje);
   }
 
   .topbar__logga {
     font-family: var(--typ-display);
     font-weight: 600;
-    font-size: var(--t-l);
-    letter-spacing: -0.03em;
+    font-size: var(--t-m);
+    letter-spacing: -0.02em;
     text-decoration: none;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .topbar__flikar {
-    display: flex;
-    gap: var(--rum-1);
-  }
-
-  .flik {
+  .menyknapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8em;
+    flex-shrink: 0;
     font-family: var(--typ-tb);
     font-size: var(--t-tb);
     font-weight: 500;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    text-decoration: none;
-    padding: 0.55em 0.9em;
+    padding: 0.6em 0;
+  }
+
+  .menyknapp__streck {
+    display: grid;
+    gap: 4px;
+    width: 22px;
+  }
+
+  .menyknapp__streck span {
+    display: block;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .menyknapp:hover .menyknapp__streck span:nth-child(2) {
+    transform: translateX(-4px);
+  }
+
+  /* Menyn: en dialog över hela fönstret, tonad yta till vänster och panel till
+     höger, som i skissen. */
+  .meny {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
     color: var(--grafit);
-    white-space: nowrap;
-    transition:
-      background-color 130ms ease,
-      color 130ms ease;
+    overflow: hidden;
+    --ton: var(--grafit);
+    --ton-styrka: 28%;
   }
 
-  .flik:hover {
-    background: color-mix(in srgb, var(--grafit) 9%, transparent);
+  .meny::backdrop {
+    background: transparent;
   }
 
-  /* Aktiv flik fylls solid — poché, som ett kapat element på en ritning. */
-  .flik--aktiv {
-    background: var(--poche);
-    color: var(--norrljus);
+  .meny__ton {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--ton) var(--ton-styrka), transparent);
+    transition: background-color 320ms ease;
   }
 
-  @media (max-width: 860px) {
-    .topbar {
-      /* Relativ, inte statisk: z-index måste gälla så att raden täcker
-         snittlinjens skena vid sidans topp. */
-      position: relative;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
-      gap: 0;
-      height: auto;
-      padding-block: var(--rum-3) 0;
+  /* Den svagare nyansen: en utpekad kategori färgar hela ytan bakom panelen. */
+  .meny[data-farg] {
+    --ton-styrka: 58%;
+  }
+
+  .meny__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(27rem, 100%);
+    display: flex;
+    flex-direction: column;
+    padding: 0 var(--marg) var(--rum-5);
+    background: var(--papper);
+    box-shadow: -1px 0 0 var(--linje);
+    transition: transform 360ms cubic-bezier(0.22, 0.7, 0.2, 1);
+    overflow-y: auto;
+  }
+
+  .meny__huvud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--topbar-h);
+    flex-shrink: 0;
+  }
+
+  .meny__stang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--typ-tb);
+    font-size: var(--t-tb);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.6em 0;
+  }
+
+  .meny__lista {
+    list-style: none;
+    margin: var(--rum-5) 0 var(--rum-5);
+    padding: 0;
+    display: grid;
+    gap: var(--rum-2);
+  }
+
+  .meny__post {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .meny__lank {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-family: var(--typ-display);
+    font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.75rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+    text-align: right;
+    text-decoration: none;
+    color: color-mix(in srgb, var(--grafit) 58%, transparent);
+    transition: color 140ms ease;
+  }
+
+  .meny__lank:hover,
+  .meny__lank:focus-visible,
+  .meny__lank--aktiv,
+  .meny__lank[aria-expanded="true"] {
+    color: var(--grafit);
+  }
+
+  .meny__lank svg {
+    order: -1;
+    transition: transform 240ms cubic-bezier(0.22, 0.7, 0.2, 1);
+  }
+
+  .meny__lank[aria-expanded="true"] svg {
+    transform: translateX(-4px);
+  }
+
+  .meny__fot {
+    margin: auto 0 0;
+    text-align: right;
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+
+  /* Kategorierna. På bred skärm ligger listan ute på den tonade ytan till
+     vänster om panelen (skissens "Alt 1, Alt 2 …"); på smal skärm under Projekt. */
+  .kategorier {
+    position: fixed;
+    top: calc(var(--topbar-h) + var(--rum-5));
+    right: calc(min(27rem, 100%) + var(--rum-4));
+    width: 23rem;
+    padding: var(--rum-4) var(--rum-5) var(--rum-5);
+    background: var(--papper);
+  }
+
+  .kategorier__etikett {
+    margin: 0 0 var(--rum-3);
+  }
+
+  .kategorier ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+
+  .kategorier__lank {
+    display: flex;
+    align-items: center;
+    gap: var(--rum-3);
+    padding: 0.7em 0;
+    border-top: 1px solid var(--linje);
+    font-family: var(--typ-display);
+    font-size: var(--t-l);
+    letter-spacing: -0.015em;
+    text-decoration: none;
+  }
+
+  .kategorier__ruta {
+    width: 0.8rem;
+    height: 0.8rem;
+    flex-shrink: 0;
+    background: var(--k);
+    transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .kategorier__lank:hover .kategorier__ruta,
+  .kategorier__lank:focus-visible .kategorier__ruta {
+    transform: scale(1.35);
+  }
+
+  .kategorier__namn {
+    flex: 1;
+  }
+
+  .kategorier__lank--alla {
+    color: var(--krita);
+  }
+
+  .kategorier__lank--alla:hover {
+    color: var(--grafit);
+  }
+
+  @media (max-width: 960px) {
+    .kategorier {
+      position: static;
+      width: 100%;
+      padding: var(--rum-3) 0 var(--rum-2);
+      background: none;
     }
 
-    .topbar__logga {
-      font-size: var(--t-m);
-    }
-
-    .topbar__flikar {
-      margin-top: var(--rum-3);
-      margin-inline: calc(var(--marg) * -1);
-      padding-inline: var(--marg);
-      overflow-x: auto;
-      scrollbar-width: none;
-      /* Tonar ut högerkanten så att det syns att raden fortsätter. */
-      mask-image: linear-gradient(
-        to right,
-        #000 0,
-        #000 calc(100% - 2.5rem),
-        transparent 100%
-      );
-    }
-    .topbar__flikar::-webkit-scrollbar {
+    .kategorier__etikett {
       display: none;
     }
   }
+
+  @starting-style {
+    .meny[open] .meny__panel {
+      transform: translateX(100%);
+    }
+    .meny[open] .meny__ton {
+      background-color: transparent;
+    }
+  }
 </style>
+
+<script>
+  const meny = document.querySelector<HTMLDialogElement>("[data-meny]");
+  const oppna = document.querySelector<HTMLButtonElement>("[data-meny-oppna]");
+
+  if (meny && oppna) {
+    const projektKnapp = meny.querySelector<HTMLButtonElement>("[data-projekt-knapp]");
+    const kategorier = meny.querySelector<HTMLElement>("[data-kategorier]");
+
+    const visaKategorier = (pa: boolean) => {
+      projektKnapp?.setAttribute("aria-expanded", String(pa));
+      if (kategorier) kategorier.hidden = !pa;
+    };
+
+    const tona = (farg?: string) => {
+      if (farg) {
+        meny.dataset.farg = "";
+        meny.style.setProperty("--ton", farg);
+      } else {
+        delete meny.dataset.farg;
+        meny.style.removeProperty("--ton");
+      }
+    };
+
+    const stang = () => meny.close();
+
+    oppna.addEventListener("click", () => {
+      visaKategorier(false);
+      tona();
+      meny.showModal();
+    });
+
+    meny.addEventListener("close", () => oppna.focus());
+    meny.querySelector("[data-meny-stang]")?.addEventListener("click", stang);
+    meny.querySelector("[data-meny-ton]")?.addEventListener("click", stang);
+
+    projektKnapp?.addEventListener("click", () => {
+      visaKategorier(projektKnapp.getAttribute("aria-expanded") !== "true");
+    });
+
+    for (const lank of meny.querySelectorAll<HTMLAnchorElement>("[data-farg]")) {
+      const farg = lank.dataset.farg;
+      lank.addEventListener("pointerenter", () => tona(farg));
+      lank.addEventListener("focus", () => tona(farg));
+      lank.addEventListener("pointerleave", () => tona());
+      lank.addEventListener("blur", () => tona());
+    }
+
+    // Ankarlänkar på samma sida laddar inte om, så menyn stängs för hand.
+    for (const lank of meny.querySelectorAll<HTMLAnchorElement>("a")) {
+      lank.addEventListener("click", stang);
+    }
+  }
+</script>

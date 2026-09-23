@@ -1,10 +1,10 @@
 ---
 titel: Biblioteket i Majorna
-ar: 2022
+ar: 2025
 kategori: publika-byggnader
 plats: Majorna, Göteborg
-status: byggt
-roll: Ansvarig arkitekt
+status: ej byggt
+roll: Kandidatarbete, Chalmers
 area: 1 150 m²
 ordning: 3
 omslag: biblioteket-01.jpg

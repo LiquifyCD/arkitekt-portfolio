@@ -1,99 +1,146 @@
 ---
-import { ARKITEKT } from "../consts";
+import { ARKITEKT, NAV } from "../consts";
 import { intern } from "../lankar";
 const ar = new Date().getFullYear();
 
 // Byggs sajten med PUBLIC_DEMO=1 sätts en rad i kolofonen om att innehållet är
 // påhittat. Används när prototypen delas innan riktigt innehåll finns på plats.
 const demo = import.meta.env.PUBLIC_DEMO === "1";
+
+const kontakt = [
+  { etikett: "E-post", text: ARKITEKT.epost, href: `mailto:${ARKITEKT.epost}` },
+  { etikett: "Telefon", text: ARKITEKT.telefon, href: `tel:${ARKITEKT.telefon.replace(/\s/g, "")}` },
+  { etikett: "Instagram", text: "Instagram", href: ARKITEKT.instagram },
+  { etikett: "LinkedIn", text: "LinkedIn", href: ARKITEKT.linkedin },
+  { etikett: "CV", text: "Ladda ner CV", href: intern(ARKITEKT.cv) },
+];
 ---
 
-<footer class="sidfot" data-snitt="Kontakt">
-  <div class="sida sidfot__inre">
-    <div class="sidfot__prat">
-      <p class="sidfot__rubrik">Har du ett hus som behöver ritas?</p>
-      <a class="sidfot__epost" href={`mailto:${ARKITEKT.epost}`}>{ARKITEKT.epost}</a>
-    </div>
+<footer class="sidfot" aria-labelledby="rubrik-kontakt">
+  <div class="sida">
+    <h2 class="sidfot__rubrik" id="rubrik-kontakt">Kontakt</h2>
 
-    <ul class="sidfot__lankar">
-      <li><a href={`tel:${ARKITEKT.telefon.replace(/\s/g, "")}`}>{ARKITEKT.telefon}</a></li>
-      <li><a href={ARKITEKT.instagram} rel="me noopener">Instagram</a></li>
-      <li><a href={ARKITEKT.linkedin} rel="me noopener">LinkedIn</a></li>
-      <li><a href={intern(ARKITEKT.cv)}>Ladda ner CV</a></li>
+    <ul class="sidfot__kontakt">
+      {
+        kontakt.map((k) => (
+          <li>
+            <span class="tb">{k.etikett}</span>
+            <a href={k.href} rel={k.href.startsWith("http") ? "me noopener" : undefined}>
+              {k.text}
+            </a>
+          </li>
+        ))
+      }
     </ul>
 
-    <p class="tb sidfot__kolofon">
-      {ar} {ARKITEKT.namn} — {ARKITEKT.ort}
-      {
-        demo && (
-          <span class="sidfot__demo">
-            Designprototyp — namn, projekt, texter och kontaktuppgifter är
-            påhittade platshållare.
-          </span>
-        )
-      }
-    </p>
+    <div class="sidfot__nedre">
+      <nav aria-label="Sidor">
+        <ul class="sidfot__sidor">
+          {
+            NAV.map((post) => (
+              <li>
+                <a href={intern(post.href)}>{post.text}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <p class="tb sidfot__kolofon">
+        {ar} {ARKITEKT.namn} — {ARKITEKT.ort}
+        {
+          demo && (
+            <span class="sidfot__demo">
+              Designprototyp — namn, projekt, texter och kontaktuppgifter är
+              påhittade platshållare.
+            </span>
+          )
+        }
+      </p>
+    </div>
   </div>
 </footer>
 
 <style>
   .sidfot {
     margin-top: var(--rum-8);
-    border-top: 1px solid var(--linje-stark);
     padding-block: var(--rum-7) var(--rum-5);
-  }
-
-  .sidfot__inre {
-    display: grid;
-    gap: var(--rum-6);
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    background: var(--poche);
+    color: var(--norrljus);
   }
 
   .sidfot__rubrik {
-    font-family: var(--typ-display);
-    font-size: var(--t-xl);
-    font-weight: 500;
-    letter-spacing: -0.025em;
-    line-height: var(--rad-rubrik);
-    margin-bottom: var(--rum-4);
-    max-width: 14ch;
+    font-size: var(--t-2xl);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    margin-bottom: var(--rum-6);
   }
 
-  .sidfot__epost {
-    font-family: var(--typ-display);
-    font-size: var(--t-l);
-    text-decoration-color: var(--linje-stark);
-  }
-
-  .sidfot__lankar {
+  .sidfot__kontakt {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--rum-5) var(--rum-5);
+  }
+
+  .sidfot__kontakt li {
+    display: grid;
     gap: var(--rum-2);
-    align-content: start;
+    padding-top: var(--rum-3);
+    border-top: 1px solid color-mix(in srgb, var(--norrljus) 25%, transparent);
+  }
+
+  .sidfot__kontakt a {
+    font-family: var(--typ-display);
+    font-size: var(--t-l);
+    letter-spacing: -0.015em;
+    text-decoration-color: color-mix(in srgb, var(--norrljus) 35%, transparent);
+    overflow-wrap: anywhere;
+  }
+
+  .sidfot .tb {
+    color: color-mix(in srgb, var(--norrljus) 60%, transparent);
+  }
+
+  .sidfot__nedre {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: var(--rum-4);
+    margin-top: var(--rum-7);
+  }
+
+  .sidfot__sidor {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--rum-2) var(--rum-4);
     font-family: var(--typ-tb);
     font-size: var(--t-xs);
-    letter-spacing: 0.02em;
+  }
+
+  .sidfot__sidor a {
+    text-decoration: none;
+  }
+
+  .sidfot__sidor a:hover {
+    text-decoration: underline;
   }
 
   .sidfot__kolofon {
-    grid-column: 1 / -1;
     margin: 0;
-    padding-top: var(--rum-5);
-    border-top: 1px solid var(--linje);
   }
 
   .sidfot__demo {
     display: block;
     margin-top: 0.5em;
-    color: var(--blakopia);
   }
 
-  @media (max-width: 860px) {
-    .sidfot__inre {
-      grid-template-columns: 1fr;
-      gap: var(--rum-5);
-    }
+  .sidfot :focus-visible {
+    outline-color: var(--norrljus);
   }
 </style>

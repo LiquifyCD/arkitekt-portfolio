@@ -1,7 +1,7 @@
 ---
 titel: Verkstaden
 ar: 2021
-kategori: inredning
+kategori: renovering
 plats: Gamlestaden, Göteborg
 status: byggt
 roll: Ansvarig arkitekt

@@ -2,7 +2,7 @@
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Bas from "../../layouts/Bas.astro";
 import Namnruta from "../../komponenter/Namnruta.astro";
-import Uppslag from "../../komponenter/Uppslag.astro";
+import Bok from "../../komponenter/Bok.astro";
 import Projektkort from "../../komponenter/Projektkort.astro";
 import Avsnittsrubrik from "../../komponenter/Avsnittsrubrik.astro";
 import { KATEGORIER } from "../../consts";
@@ -33,7 +33,7 @@ const relaterade = (
 const fakta = [
   { etikett: "Årtal", varde: String(d.ar) },
   { etikett: "Plats", varde: d.plats },
-  { etikett: "Kategori", varde: KATEGORIER[d.kategori] },
+  { etikett: "Kategori", varde: KATEGORIER[d.kategori].namn },
   { etikett: "Status", varde: d.status },
   { etikett: "Roll", varde: d.roll },
   ...(d.area ? [{ etikett: "Omfattning", varde: d.area }] : []),
@@ -42,20 +42,20 @@ const fakta = [
 const antal = d.uppslag.length;
 ---
 
-<Bas
-  titel={d.titel}
-  beskrivning={d.sammanfattning}
-  snittLage="manuell"
-  snittEtikett={antal ? `1 / ${antal}` : KATEGORIER[d.kategori]}
->
+<Bas titel={d.titel} beskrivning={d.sammanfattning}>
   <article class="projekt">
     <header class="sida projekt__topp">
-      <a class="tb tillbaka" href={intern(`/projekt?kategori=${d.kategori}`)}>
+      <a
+        class="tb tillbaka"
+        href={intern(`/projekt#${d.kategori}`)}
+        style={`--k: ${KATEGORIER[d.kategori].farg}`}
+      >
         <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
           <path d="M19 12H6m0 0 5-5m-5 5 5 5" fill="none" stroke="currentColor" stroke-width="2.2"
           ></path>
         </svg>
-        {KATEGORIER[d.kategori]}
+        <span class="tillbaka__ruta" aria-hidden="true"></span>
+        {KATEGORIER[d.kategori].namn}
       </a>
       <h1>{d.titel}</h1>
       <p class="projekt__sammanfattning text-matt">{d.sammanfattning}</p>
@@ -67,37 +67,9 @@ const antal = d.uppslag.length;
 
     {
       antal > 0 && (
-        <section class="bok" data-bok aria-label="Projektet uppslag för uppslag">
-          <div class="sida">
-            <div class="bok__scen" data-scen>
-              {d.uppslag.map((u, i) => (
-                <Uppslag data={u} nr={i + 1} antal={antal} projekttitel={d.titel} />
-              ))}
-            </div>
-
-            <div class="bok__styr" data-styr hidden>
-              <button type="button" class="blad" data-bak aria-label="Föregående uppslag">
-                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-                  <path
-                    d="M15 5 8 12l7 7"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
-                </svg>
-              </button>
-              <p class="tb raknare" data-raknare aria-live="polite">
-                01 / {String(antal).padStart(2, "0")}
-              </p>
-              <button type="button" class="blad" data-fram aria-label="Nästa uppslag">
-                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-                  <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" />
-                </svg>
-              </button>
-              <p class="tb bok__tips">Bläddra med piltangenterna</p>
-            </div>
-          </div>
-        </section>
+        <div class="sida bok">
+          <Bok uppslag={d.uppslag} titel={d.titel} />
+        </div>
       )
     }
 
@@ -138,6 +110,12 @@ const antal = d.uppslag.length;
     color: var(--grafit);
   }
 
+  .tillbaka__ruta {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--k);
+  }
+
   h1 {
     font-size: var(--t-2xl);
     font-weight: 600;
@@ -161,56 +139,6 @@ const antal = d.uppslag.length;
     margin-top: var(--rum-8);
   }
 
-  /* Utan JS, och på små skärmar, ligger uppslagen efter varandra och rullas. */
-  .bok__scen {
-    display: grid;
-    gap: var(--rum-8);
-  }
-
-  .bok__styr {
-    display: flex;
-    align-items: center;
-    gap: var(--rum-4);
-    margin-top: var(--rum-5);
-    padding-top: var(--rum-4);
-    border-top: 1px solid var(--linje-stark);
-  }
-
-  .blad {
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border: 1px solid var(--linje-stark);
-    transition:
-      background-color 140ms ease,
-      color 140ms ease,
-      border-color 140ms ease;
-  }
-
-  .blad:hover:not(:disabled) {
-    background: var(--poche);
-    border-color: var(--poche);
-    color: var(--norrljus);
-  }
-
-  .blad:disabled {
-    opacity: 0.28;
-    cursor: default;
-  }
-
-  .raknare {
-    margin: 0;
-    min-width: 5.5ch;
-    color: var(--grafit);
-    font-size: var(--t-xs);
-    letter-spacing: 0.14em;
-  }
-
-  .bok__tips {
-    margin: 0 0 0 auto;
-  }
-
   .vidare {
     margin-top: var(--rum-8);
   }
@@ -221,150 +149,4 @@ const antal = d.uppslag.length;
     gap: var(--rum-6) var(--rum-5);
   }
 
-  /* Bokläge: uppslagen ligger på varandra, ett i taget. */
-  .bok[data-lage="bok"] .bok__scen {
-    position: relative;
-    display: block;
-    height: clamp(26rem, 70vh, 48rem);
-  }
-
-  .bok[data-lage="bok"] .bok__scen :global(.uppslag) {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateX(var(--in, 0));
-    transition:
-      opacity 260ms ease,
-      transform 340ms cubic-bezier(0.22, 0.7, 0.2, 1),
-      visibility 0s linear 340ms;
-  }
-
-  .bok[data-lage="bok"] .bok__scen :global(.uppslag[data-aktiv]) {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateX(0);
-    transition-delay: 0s;
-  }
-
-  .bok[data-lage="bok"] .bok__scen :global(.uppslag img) {
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-    object-position: center;
-    /* Inget plattfärgat fält bakom en inpassad bild. */
-    background: transparent;
-  }
-
-  .bok[data-lage="bok"] .bok__scen :global(.ruta) {
-    height: 100%;
-    min-height: 0;
-  }
-
-  .bok[data-lage="bok"] .bok__scen :global(figcaption) {
-    flex: 0 0 auto;
-  }
-
-  @media (max-width: 860px) {
-    .bok__tips {
-      display: none;
-    }
-    .bok__scen {
-      gap: var(--rum-7);
-    }
-  }
 </style>
-
-<script>
-  const bok = document.querySelector<HTMLElement>("[data-bok]");
-
-  if (bok) {
-    const scen = bok.querySelector<HTMLElement>("[data-scen]");
-    const styr = bok.querySelector<HTMLElement>("[data-styr]");
-    const raknare = bok.querySelector<HTMLElement>("[data-raknare]");
-    const bak = bok.querySelector<HTMLButtonElement>("[data-bak]");
-    const fram = bok.querySelector<HTMLButtonElement>("[data-fram]");
-    const uppslag = Array.from(bok.querySelectorAll<HTMLElement>("[data-uppslag]"));
-    const antal = uppslag.length;
-
-    const bred = window.matchMedia("(min-width: 861px)");
-    let nr = 0;
-
-    const tvasiffror = (n: number) => String(n).padStart(2, "0");
-
-    const visa = (nytt: number, riktning = 0) => {
-      nr = Math.max(0, Math.min(antal - 1, nytt));
-      uppslag.forEach((u, i) => {
-        u.style.setProperty("--in", i === nr ? "0" : riktning >= 0 ? "14px" : "-14px");
-        u.toggleAttribute("data-aktiv", i === nr);
-        u.setAttribute("aria-hidden", i === nr ? "false" : "true");
-      });
-      if (raknare) raknare.textContent = `${tvasiffror(nr + 1)} / ${tvasiffror(antal)}`;
-      if (bak) bak.disabled = nr === 0;
-      if (fram) fram.disabled = nr === antal - 1;
-      (window as any).snittlinje?.satt(
-        antal > 1 ? nr / (antal - 1) : 0,
-        `${tvasiffror(nr + 1)} / ${tvasiffror(antal)}`,
-      );
-    };
-
-    const bladdra = (steg: number) => visa(nr + steg, steg);
-
-    const slaPa = () => {
-      bok.dataset.lage = "bok";
-      if (styr) styr.hidden = false;
-      visa(nr);
-    };
-
-    const slaAv = () => {
-      delete bok.dataset.lage;
-      if (styr) styr.hidden = true;
-      for (const u of uppslag) {
-        u.removeAttribute("data-aktiv");
-        u.removeAttribute("aria-hidden");
-        u.style.removeProperty("--in");
-      }
-      (window as any).snittlinje?.satt(0, `01 / ${tvasiffror(antal)}`);
-    };
-
-    const stall = () => (bred.matches ? slaPa() : slaAv());
-
-    bak?.addEventListener("click", () => bladdra(-1));
-    fram?.addEventListener("click", () => bladdra(1));
-    bred.addEventListener("change", stall);
-
-    addEventListener("keydown", (e) => {
-      if (!bred.matches) return;
-      const fokus = document.activeElement?.tagName;
-      if (fokus === "INPUT" || fokus === "TEXTAREA") return;
-      if (e.key === "ArrowRight") bladdra(1);
-      else if (e.key === "ArrowLeft") bladdra(-1);
-    });
-
-    // Svep på pekskärm och styrplatta.
-    let startX = 0;
-    let startY = 0;
-    scen?.addEventListener(
-      "pointerdown",
-      (e) => {
-        startX = e.clientX;
-        startY = e.clientY;
-      },
-      { passive: true },
-    );
-    scen?.addEventListener(
-      "pointerup",
-      (e) => {
-        if (!bred.matches) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.6) bladdra(dx < 0 ? 1 : -1);
-      },
-      { passive: true },
-    );
-
-    stall();
-  }
-</script>

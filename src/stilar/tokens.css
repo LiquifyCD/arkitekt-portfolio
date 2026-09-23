@@ -1,17 +1,16 @@
 /* Designsystem.
-   Grunden är ritfilm, inte gräddpapper: en sval grågrön yta, grafitlinjer, och
-   det som är kapat fylls solitt svart — poché. Blåkopian används bara till
-   snittlinjen och fokusmarkering, aldrig som dekor. */
+   Varmt papper och grafit. De enda starka färgerna är kategoriernas egna
+   (KATEGORIER i src/consts.ts) — allt annat håller sig i gråskalan. */
 
 :root {
   /* Färg */
-  --papper: #e6e7e2;
-  --papper-djup: #dcded8;
-  --grafit: #191c1e;
-  --poche: #0a0b0c;
-  --norrljus: #f7f8f5;
-  --blakopia: #22467a;
-  --krita: #7c8179;
+  --papper: #f3efe7;
+  --papper-djup: #e8e2d6;
+  --grafit: #1e1d1b;
+  --poche: #121110;
+  --norrljus: #fbf9f4;
+  --blakopia: #2f5f93;
+  --krita: #6f6a61;
 
   --linje: color-mix(in srgb, var(--grafit) 20%, transparent);
   --linje-stark: color-mix(in srgb, var(--grafit) 42%, transparent);
@@ -47,7 +46,6 @@
 
   /* Mått */
   --marg: clamp(1rem, 1rem + 4.5vw, 7rem);
-  --snitt-x: clamp(0.75rem, 0.4rem + 1.6vw, 2.75rem);
   --matt: 88rem;
   --matt-text: 34rem;
   --topbar-h: 4.25rem;
@@ -55,7 +53,7 @@
 
 @media (max-width: 860px) {
   :root {
-    --topbar-h: 5.75rem;
+    --topbar-h: 3.75rem;
     --marg: 1.25rem;
   }
 }

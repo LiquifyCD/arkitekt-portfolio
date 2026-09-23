@@ -34,6 +34,20 @@ const projekt = defineCollection({
   }),
 });
 
+// Skrivet av mig. Varje text läses som en bok, uppslag för uppslag.
+const texter = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/innehall/texter" }),
+  schema: z.object({
+    titel: z.string(),
+    ar: z.number(),
+    // Vad texten är, t.ex. "Kandidatuppsats" eller "Essä".
+    slag: z.string(),
+    sammanfattning: z.string(),
+    ordning: z.number().default(100),
+    uppslag: z.array(uppslag).default([]),
+  }),
+});
+
 const galleri = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/innehall/galleri" }),
   schema: z.object({
@@ -46,4 +60,4 @@ const galleri = defineCollection({
   }),
 });
 
-export const collections = { projekt, galleri };
+export const collections = { projekt, texter, galleri };
