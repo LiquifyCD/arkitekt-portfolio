@@ -5,6 +5,11 @@ import { FILM } from "../consts";
 
 // Bädden hämtas först när besökaren startar filmen — inga tredjepartskakor
 // innan dess. Utan id visas bara affischbilden.
+interface Props {
+  // Fyller förälderns höjd i stället för att hålla 16:9.
+  fyll?: boolean;
+}
+const { fyll = false } = Astro.props;
 const affisch = bild(FILM.affisch);
 const kalla =
   FILM.leverantor === "vimeo"
@@ -13,7 +18,7 @@ const kalla =
 const varifran = FILM.leverantor === "vimeo" ? "Vimeo" : "YouTube";
 ---
 
-<figure class="film" data-film data-kalla={kalla} data-titel={FILM.titel}>
+<figure class:list={["film", { "film--fyll": fyll }]} data-film data-kalla={kalla} data-titel={FILM.titel}>
   <button class="film__yta" type="button" data-film-start>
     <Image
       src={affisch}
@@ -95,6 +100,28 @@ const varifran = FILM.leverantor === "vimeo" ? "Vimeo" : "YouTube";
 
   .film__notis {
     margin-top: var(--rum-3);
+  }
+
+  .film--fyll {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .film--fyll .film__yta {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .film--fyll .film__yta :global(img) {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .film.film--fyll :global(iframe) {
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: auto;
   }
 
   .film :global(iframe) {

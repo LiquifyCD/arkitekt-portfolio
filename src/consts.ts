@@ -52,10 +52,6 @@ export const KATEGORIER = {
 
 export type Kategori = keyof typeof KATEGORIER;
 
-// Raden under filmen på startsidan.
-export const MANIFEST =
-  "En arkitektur för dig, mig, men framförallt oss. Med grunden för att skapa för en gemensam framtid — för nyfikenhetens och trygghetens skull.";
-
 // Startsidans två utvalda: texten i boken och projektet under "Ta en extra kik!".
 // Värdena är filnamn utan .md i src/innehall/texter/ och src/innehall/projekt/.
 export const STARTSIDA = {
