@@ -95,7 +95,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
     padding: 0;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--rum-2);
+    gap: var(--rum-5);
   }
 
   .post__knapp {
@@ -219,7 +219,7 @@ const poster = (await getCollection("galleri")).sort((a, b) => a.data.ordning - 
   @media (max-width: 700px) {
     .rutnat {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--rum-1);
+      gap: var(--rum-3);
     }
   }
 </style>
