@@ -124,9 +124,17 @@ JavaScript — ligger uppslagen efter varandra och rullas som vanligt.
 
 ## Publicering
 
-```bash
-docker compose up -d --build
-```
+Sajten ligger på Cloudflare Pages, kopplad till det här repot. Varje push till
+`main` bygger och publicerar; pull requests får egna förhandsadresser.
 
-Servern lyssnar på `127.0.0.1:8088`. Ställ din befintliga reverse proxy framför
-den och peka domänen dit.
+| Inställning         | Värde           |
+| ------------------- | --------------- |
+| Framework preset    | Astro           |
+| Build command       | `npm run build` |
+| Build output        | `dist`          |
+| `NODE_VERSION`      | `22`            |
+| `PUBLIC_DEMO`       | `1` (ta bort vid skarp publicering) |
+| `SITE_URL`          | sajtens adress, t.ex. `https://arkitekt-portfolio.pages.dev` |
+
+Vill du köra den själv i stället finns `docker compose up -d --build`, som
+lyssnar på `127.0.0.1:8088` bakom en reverse proxy.
